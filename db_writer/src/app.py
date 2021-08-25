@@ -43,7 +43,7 @@ def create_connection():
     host = os.environ['DB_HOST']
     return psycopg2.connect(dbname=dbname, user=user, password=password, host=host)
 
-@retry(pika.exceptions.AMQPConnectionError, delay=10, tries=30)
+@retry(pika.exceptions.AMQPConnectionError, delay=10, tries=3)
 def main():
     host = os.environ['RABBITMQ_HOST']
     print("Pika connecting to %s" % host)
