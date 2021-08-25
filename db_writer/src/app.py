@@ -62,6 +62,10 @@ def main():
     channel.basic_consume( queue='Temperature', on_message_callback=partial(temperature_callback, connection=conn), auto_ack=True)
     channel.basic_consume(queue='Humidity', on_message_callback=partial(humidity_callback, connection=conn), auto_ack=True)
 
-    channel.start_consuming()
+    try:
+        channel.start_consuming()
+    finally:
+        channel.close()
+        conn.close()
     
 main()
