@@ -24,6 +24,10 @@ services:
     environment:
       - RABBITMQ_HOST=queue
       - PYTHONUNBUFFERED=1
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
     depends_on:
       - queue
       - db
