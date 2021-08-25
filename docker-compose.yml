@@ -16,3 +16,16 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  db_writer:
+    build: ./db_writer
+    environment:
+      - RABBITMQ_HOST=queue
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - queue
+      - db
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
