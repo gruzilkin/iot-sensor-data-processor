@@ -1,7 +1,14 @@
 version: '3.8'
 
 services:
-  postgres:
+  queue:
+    build: ./rabbitmq
+    ports:
+      - 15672:15672
+      - 1883:1883
+      - 5672:5672
+
+  db:
     image: postgres
     ports:
       - "5432:5432"
