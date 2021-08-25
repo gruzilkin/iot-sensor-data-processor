@@ -9,4 +9,6 @@ RUN pip3 install -r requirements.txt
 
 COPY ./src/ .
 
-CMD [ "python3", "app.py"]
+EXPOSE 5678
+
+CMD python3 -m debugpy --listen 0.0.0.0:5678 app.py

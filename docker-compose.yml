@@ -19,6 +19,8 @@ services:
 
   db_writer:
     build: ./db_writer
+    ports:
+      - "5678:5678"
     environment:
       - RABBITMQ_HOST=queue
       - PYTHONUNBUFFERED=1
