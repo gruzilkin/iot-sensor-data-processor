@@ -9,13 +9,11 @@ services:
       - 5672:5672
 
   db:
-    image: postgres
+    build: ./db
     ports:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: postgres
-    volumes:
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   db_writer:
     build: ./db_writer
