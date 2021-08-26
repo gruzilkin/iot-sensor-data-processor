@@ -2,35 +2,19 @@ import psycopg2, pika, json, datetime, sys, os
 from retry import retry
 from functools import partial
 
-def temperature_callback(ch, method, properties, body, connection):
+def rabbit_callback(ch, method, properties, body, args):
+    (connection, table_name, body_dict_key) = args
+    
     timestamp = properties.headers['timestamp_in_ms']
     body_dict = json.loads(body)
     
     received_at = datetime.datetime.fromtimestamp(timestamp/1000)
-    device = body_dict['device']
-    temperature = body_dict['temperature']
-
-    args = (device, temperature, received_at)
+    device_id = method.routing_key.split('.')[1]
+    temperature = body_dict[body_dict_key]
 
     cur = connection.cursor()
-    cur.execute("INSERT INTO temperature (device_id, value, received_at) VALUES (%s, %s, %s)", args)
-    connection.commit()
-    cur.close()
-
-    print(" [x] Received %r" % body)
-
-def humidity_callback(ch, method, properties, body, connection):
-    timestamp = properties.headers['timestamp_in_ms']
-    body_dict = json.loads(body)
-    
-    received_at = datetime.datetime.fromtimestamp(timestamp/1000)
-    device = body_dict['device']
-    humidity = body_dict['humidity']
-
-    args = (device, humidity, received_at)
-
-    cur = connection.cursor()
-    cur.execute("INSERT INTO humidity (device_id, value, received_at) VALUES (%s, %s, %s)", args)
+    sql_args = (device_id, temperature, received_at)
+    cur.execute(f"INSERT INTO {table_name} (device_id, value, received_at) VALUES (%s, %s, %s)", sql_args)
     connection.commit()
     cur.close()
 
@@ -52,15 +36,17 @@ def main():
 
     channel = connection.channel()
 
-    channel.queue_declare(queue='Temperature', durable=True)
-    channel.queue_bind(queue='Temperature', exchange="amq.topic")
+    channel.queue_declare(queue='temperature', durable=True)
+    channel.queue_bind(routing_key="temperature.*", queue='temperature', exchange="amq.topic")
 
-    channel.queue_declare(queue='Humidity', durable=True)
-    channel.queue_bind(queue='Humidity', exchange="amq.topic")
+    channel.queue_declare(queue='humidity', durable=True)
+    channel.queue_bind(routing_key="humidity.*", queue='humidity', exchange="amq.topic")
 
     conn = create_connection()
-    channel.basic_consume( queue='Temperature', on_message_callback=partial(temperature_callback, connection=conn), auto_ack=True)
-    channel.basic_consume(queue='Humidity', on_message_callback=partial(humidity_callback, connection=conn), auto_ack=True)
+    temperature_callback = partial(rabbit_callback, args=(conn, 'temperature', 'temperature'))
+    humidity_callback = partial(rabbit_callback, args=(conn, 'humidity', 'humidity'))
+    channel.basic_consume( queue='temperature', on_message_callback=temperature_callback, auto_ack=True)
+    channel.basic_consume(queue='humidity', on_message_callback=humidity_callback, auto_ack=True)
 
     try:
         channel.start_consuming()
