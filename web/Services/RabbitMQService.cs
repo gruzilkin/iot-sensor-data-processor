@@ -50,7 +50,7 @@ namespace web.Services
                 channel.Close();
                 conn.Close();
                 pipe.Writer.Complete();
-                Console.WriteLine("Rabbit connection closed");
+                logger.LogInformation("rabbit connection closed");
             });
 
             return pipe.Reader;
