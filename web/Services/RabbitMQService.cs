@@ -32,9 +32,10 @@ namespace web.Services
             var pipe = Channel.CreateUnbounded<byte[]>();
 
             String queueName = "web." + device;
-            String routingKey = "temperature." + device;
             channel.QueueDeclare(queueName, false, false, true, null);
-            channel.QueueBind(queueName, "amq.topic", routingKey, null);
+
+            channel.QueueBind(queueName, "amq.topic", "temperature." + device, null);
+            channel.QueueBind(queueName, "amq.topic", "humidity." + device, null);
 
             var consumer = new AsyncEventingBasicConsumer(channel);
             consumer.Received += async(ch, ea) =>
