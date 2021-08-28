@@ -20,7 +20,7 @@ namespace web.Services
             this.logger = logger;
 
             this.factory = new ConnectionFactory();
-            this.factory.HostName = "malina";
+            this.factory.HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST");
             this.factory.DispatchConsumersAsync = true;
         }
 
