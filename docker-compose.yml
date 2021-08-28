@@ -33,3 +33,12 @@ services:
       mode: global
       restart_policy:
         condition: on-failure
+
+  web:
+    build: ./web
+    ports:
+      - "80:80"
+    environment:
+      - RABBITMQ_HOST=queue
+    depends_on:
+      - queue
