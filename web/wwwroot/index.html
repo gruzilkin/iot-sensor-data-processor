@@ -7,6 +7,14 @@
     <script src="js/site.js" asp-append-version="true"></script>
 </head>
 <body>
-    Hello
+    <div>Messages</div>
+    <div>
+        <ul id="messages"></ul>
+    </div>
+    <script>
+        window.onload = function() {
+            start("iskra", document.getElementById("messages"));
+        };
+    </script>
 </body>
 </html>
