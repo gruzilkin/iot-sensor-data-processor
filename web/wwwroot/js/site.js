@@ -1,13 +1,5 @@
 function openWebSocket(device, onmessage) {
-    var wsUri;
-    if (window.location.protocol === "https:") {
-        wsUri = "wss:";
-    } else {
-        wsUri = "ws:";
-    }
-    wsUri += "//" + window.location.host;
-    wsUri += window.location.pathname + "sensordata/" + device;
-
+    var wsUri = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/sensordata/" + device;
     webSocket = new WebSocket(wsUri);
     webSocket.onmessage = onmessage;
 }
