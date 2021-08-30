@@ -14,6 +14,8 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: postgres
+    volumes:
+      - pg_data:/var/lib/postgresql/data
 
   db_writer:
     build: ./db_writer
@@ -42,3 +44,6 @@ services:
       - RABBITMQ_HOST=queue
     depends_on:
       - queue
+
+volumes:
+  pg_data:
