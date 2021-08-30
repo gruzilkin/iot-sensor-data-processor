@@ -1,5 +1,5 @@
 using System;
-using System.Text;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -24,18 +24,22 @@ namespace web.Services
             this.factory.DispatchConsumersAsync = true;
         }
 
-        public ChannelReader<byte[]> SubscribeAndWrap(String device, CancellationToken ct)
+        public ChannelReader<byte[]> SubscribeAndWrap(String queue, String device, CancellationToken ct)
         {
+            var allowedQueues =  new List<String>() {"temperature", "humidity"};
+            if(!allowedQueues.Contains(queue))
+            {
+                throw new ArgumentOutOfRangeException (nameof(queue));
+            }
+
             IConnection conn = factory.CreateConnection();
             IModel channel = conn.CreateModel();
 
             var pipe = Channel.CreateUnbounded<byte[]>();
 
-            String queueName = "web." + device;
-            channel.QueueDeclare(queueName, false, false, true, null);
-
-            channel.QueueBind(queueName, "amq.topic", "temperature." + device, null);
-            channel.QueueBind(queueName, "amq.topic", "humidity." + device, null);
+            String readerQueue = String.Join(".", "web", queue, device);
+            channel.QueueDeclare(readerQueue, false, false, true, null);
+            channel.QueueBind(readerQueue, "amq.topic", String.Join(".", queue, device), null);
 
             var consumer = new AsyncEventingBasicConsumer(channel);
             consumer.Received += async(ch, ea) =>
@@ -43,7 +47,7 @@ namespace web.Services
                                 var body = ea.Body.ToArray();
                                 await pipe.Writer.WriteAsync(body);
                             };
-            String consumerTag = channel.BasicConsume(queueName, true, consumer);
+            String consumerTag = channel.BasicConsume(readerQueue, true, consumer);
 
             Task.Run(() => {
                 WaitHandle.WaitAny(new []{ct.WaitHandle});
