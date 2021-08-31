@@ -24,22 +24,16 @@ namespace web.Services
             this.factory.DispatchConsumersAsync = true;
         }
 
-        public ChannelReader<byte[]> SubscribeAndWrap(String queue, String device, CancellationToken ct)
+        public ChannelReader<byte[]> SubscribeAndWrap(String device, CancellationToken ct)
         {
-            var allowedQueues =  new List<String>() {"temperature", "humidity"};
-            if(!allowedQueues.Contains(queue))
-            {
-                throw new ArgumentOutOfRangeException (nameof(queue));
-            }
-
             IConnection conn = factory.CreateConnection();
             IModel channel = conn.CreateModel();
 
             var pipe = Channel.CreateUnbounded<byte[]>();
 
-            String readerQueue = String.Join(".", "web", queue, device);
+            String readerQueue = $"sensor.live.data.{device}.web";
             channel.QueueDeclare(readerQueue, false, false, true, null);
-            channel.QueueBind(readerQueue, "amq.topic", String.Join(".", queue, device), null);
+            channel.QueueBind(readerQueue, "amq.topic", $"sensor.live.data.{device}", null);
 
             var consumer = new AsyncEventingBasicConsumer(channel);
             consumer.Received += async(ch, ea) =>

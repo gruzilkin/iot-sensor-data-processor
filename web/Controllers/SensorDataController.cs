@@ -25,14 +25,14 @@ namespace web.Controllers
             this.rabbit = rabbit;
         }
 
-        [HttpGet("{queue}/{device}")]
-        public async Task Get(string queue, string device)
+        [HttpGet("{device}")]
+        public async Task Get(string device)
         {
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
                 CancellationToken ct = HttpContext.RequestAborted;
                 using WebSocket webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                var reader = rabbit.SubscribeAndWrap(queue, device, ct);
+                var reader = rabbit.SubscribeAndWrap(device, ct);
 
                 try {
                     await foreach (var body in reader.ReadAllAsync(ct))
