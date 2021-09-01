@@ -14,7 +14,7 @@ import pickle
 
 def buildCalibrationModel(connection, device_id):
     with connection.cursor() as cur:
-        read_calibration_data_command = "SELECT temperature, humidity, r0 " \
+        read_calibration_data_command = "SELECT round(temperature, 1), round(humidity), round(r0) " \
         "FROM sensor_calibration_data " \
         "WHERE device_id = %s "
         cur.execute(read_calibration_data_command, (device_id,))
@@ -23,7 +23,7 @@ def buildCalibrationModel(connection, device_id):
         train_x = calibration_data[:, :2]
         train_y = calibration_data[:, -1].reshape(-1, 1)
 
-        model = make_pipeline(StandardScaler(), PolynomialFeatures(degree = 2), LinearRegression())
+        model = make_pipeline(StandardScaler(), PolynomialFeatures(degree = 3), LinearRegression())
         model.fit(train_x, train_y)
 
         return model
