@@ -64,7 +64,7 @@ def calculateR0(connection, device_id, temperature, humidity):
 
 
 def calibration_request_callback(ch, method, properties, body, args):
-    print(" [x] Received %r" % body)
+    print(f"Received {body}")
     (connection, ) = args
 
     device_id = method.routing_key.split('.')[-1]
@@ -74,6 +74,7 @@ def calibration_request_callback(ch, method, properties, body, args):
 
     r0 = calculateR0(connection, device_id, temperature, humidity)
     response = json.dumps({'temperature': temperature, 'humidity': humidity, 'r0': r0})
+    print(f"Sent {response}")
 
     ch.basic_publish(exchange='amq.topic',
                      routing_key=f"sensor.calibration.response.{device_id}",
@@ -81,7 +82,7 @@ def calibration_request_callback(ch, method, properties, body, args):
 
 
 def rabbit_callback(ch, method, properties, body, args):
-    print(" [x] Received %r" % body)
+    print(f"Received {body}")
     (connection, table_name, body_dict_keys) = args
         
     timestamp = properties.headers['timestamp_in_ms']
@@ -109,9 +110,9 @@ def create_connection():
 @retry(pika.exceptions.AMQPConnectionError, delay=10, tries=3)
 def main():
     host = os.environ['RABBITMQ_HOST']
-    print("Pika connecting to %s" % host)
+    print(f"Pika connecting to {host}")
     connection = pika.BlockingConnection(pika.ConnectionParameters(host=host))
-    print("Pika connected to %s" % host)
+    print(f"Pika connected to {host}")
 
     channel = connection.channel()
 
