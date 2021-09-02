@@ -14,4 +14,7 @@ RUN dotnet publish -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:3.1
 WORKDIR /app
 COPY --from=build-env /app/out .
-ENTRYPOINT ["dotnet", "web.dll"]
+
+COPY wait-for-it.sh .
+
+CMD ./wait-for-it.sh -t 600 $RABBITMQ_HOST:5672 && dotnet web.dll
