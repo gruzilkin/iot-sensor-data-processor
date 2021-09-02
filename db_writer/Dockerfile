@@ -15,6 +15,7 @@ COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
 COPY wait-for-it.sh .
+RUN chmod a+x wait-for-it.sh
 
 COPY ./src/ .
 

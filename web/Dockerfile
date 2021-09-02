@@ -12,9 +12,12 @@ RUN dotnet publish -c Release -o out
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:3.1
+
 WORKDIR /app
-COPY --from=build-env /app/out .
 
 COPY wait-for-it.sh .
+RUN chmod a+x wait-for-it.sh
+
+COPY --from=build-env /app/out .
 
 CMD ./wait-for-it.sh -t 600 $RABBITMQ_HOST:5672 && dotnet web.dll
