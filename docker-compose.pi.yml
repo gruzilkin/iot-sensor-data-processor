@@ -4,4 +4,4 @@ services:
   db_writer:
     build:
       context: ./db_writer
-      dockerfile: Dockerfile-pi
+      dockerfile: Dockerfile.pi

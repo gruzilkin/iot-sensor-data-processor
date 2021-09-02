@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
   python3-sklearn-lib \
   && rm -rf /var/lib/apt/lists/*
 
-COPY requirements-pi.txt requirements.txt
+COPY requirements.pi.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
 COPY wait-for-it.sh .
