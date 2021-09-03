@@ -30,7 +30,7 @@ def buildCalibrationModel(connection, device_id):
 
         return model
 
-@cached(cache=TTLCache(maxsize=32, ttl=600), key= lambda connection, device_id: device_id)
+@cached(cache=TTLCache(maxsize=32, ttl=60), key= lambda connection, device_id: device_id)
 def calibrationModel(connection, device_id):
     with connection.cursor() as cur:
         sql_command = "SELECT cm.model " \
