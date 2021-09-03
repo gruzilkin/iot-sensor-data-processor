@@ -26,7 +26,7 @@ require('@amperka/button').connect(A3).on('press', function() {
 var sender_id;
 var mqtt_start_id;
 var mqtt;
-var r0_calibration;
+var r0_calibration = {};
 
 
 PrimarySerial.setup(115200);
@@ -94,8 +94,10 @@ function initMqtt() {
   });
 
   mqtt.on("message", function(topic, msg){
-    console.log(msg);
-    r0_calibration = JSON.parse(msg);
+    console.log("calibration data received: ", msg);
+    var response = JSON.parse(msg);
+    var calibrationKey = response.temperature.toString() + '-' + response.humidity.toString();
+    r0_calibration[calibrationKey] = response.r0;
   });
 
   mqtt.on("disconnected", function(){
@@ -118,21 +120,14 @@ function sendLiveData() {
   sender_id = setInterval(function() {
   dht.read(function (a) {
         var data = {temperature: a.temp, humidity: a.rh};
-        if (r0_calibration) {
-          var minTemperature = Math.min(r0_calibration.temperature, data.temperature);
-          var maxTemperature = Math.max(r0_calibration.temperature, data.temperature);
-          var minHumidity = Math.min(r0_calibration.humidity, data.humidity);
-          var maxHumidity = Math.max(r0_calibration.humidity, data.humidity);
-          if (maxTemperature/minTemperature > 1.01 ||
-              maxHumidity/minHumidity > 1.01 ) {
-            mqtt.publish("sensor/calibration/request/" + config.DEVICE_ID, JSON.stringify(data));
-          } else {
-            gasSensor.calibrate(r0_calibration.r0);
+        var calibrationKey = data.temperature.toString() + '-' + data.humidity.toString();
+        if (r0_calibration[calibrationKey]) {
+          gasSensor.calibrate(r0_calibration[calibrationKey]);
             var ppm = gasSensor.read();
             data.ppm = ppm;
-          }
         }
         else {
+          console.log("request new calibration", data);
           mqtt.publish("sensor/calibration/request/" + config.DEVICE_ID, JSON.stringify(data));
         }
         console.log(data);
