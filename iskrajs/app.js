@@ -1,10 +1,12 @@
-var SSID = 'WIFI SSID';
-var PSWD = 'WIFI PASSWORD';
+var SSID = 'Gruzilkin';
+var PSWD = 'bakabaka123';
 
-var malinaConfig = {MQTT_SERVER: "192.168.11.4", DEVICE_ID: "iskra", CALIBRATION: false};
+var malinaConfig = {MQTT_SERVER: "192.168.11.7", DEVICE_ID: "iskra", CALIBRATION: false};
 var pcConfig = {MQTT_SERVER: "192.168.11.17", DEVICE_ID: "iskra", CALIBRATION: false};
 var configSwitch = true;
 var config = malinaConfig;
+
+var startTime = new Date();
 
 
 // button click causes configuration switch
@@ -67,7 +69,6 @@ function delayedInitMqtt() {
   if (sender_id) {
     clearInterval(sender_id);
   }
-  gasSensor.heat(false);
   setTimeout(function() {
     initMqtt();
   }, 1000);
@@ -108,45 +109,43 @@ function initMqtt() {
   mqtt.connect();
 }
 
-  var dht = require("DHT22").connect(P3);
+var dht = require("DHT22").connect(P3);
 var gasSensor = require('@amperka/gas-sensor').connect({
   dataPin: A1, // разъём SVG
   heatPin: P12, // разъём GHE
   model: 'MQ135'
 });
+gasSensor.heat(true);
 
 function sendLiveData() {
-  gasSensor.preheat(function() {
   sender_id = setInterval(function() {
-  dht.read(function (a) {
-        var data = {temperature: a.temp, humidity: a.rh};
-        var calibrationKey = data.temperature.toString() + '-' + data.humidity.toString();
-        if (r0_calibration[calibrationKey]) {
-          gasSensor.calibrate(r0_calibration[calibrationKey]);
-            var ppm = gasSensor.read();
-            data.ppm = ppm;
-        }
-        else {
-          console.log("request new calibration", data);
-          mqtt.publish("sensor/calibration/request/" + config.DEVICE_ID, JSON.stringify(data));
-        }
-        console.log(data);
-        mqtt.publish("sensor/live/data/" + config.DEVICE_ID, JSON.stringify(data));
-  });
+    dht.read(function (a) {
+      var data = {temperature: a.temp, humidity: a.rh};
+      var calibrationKey = data.temperature.toString() + '-' + data.humidity.toString();
+      if (r0_calibration[calibrationKey]) {
+        gasSensor.calibrate(r0_calibration[calibrationKey]);
+        var ppm = gasSensor.read();
+        data.ppm = ppm;
+      }
+      else {
+        console.log("request new calibration", data);
+        mqtt.publish("sensor/calibration/request/" + config.DEVICE_ID, JSON.stringify(data));
+      }
+      console.log(data);
+      mqtt.publish("sensor/live/data/" + config.DEVICE_ID, JSON.stringify(data));
+    });
   }, 1000 * 1);
-  });
 }
 
 function sendCalibration() {
-  gasSensor.preheat(function() {
-    sender_id = setInterval(function() {
-      dht.read(function (a) {
-        var r0 = gasSensor.calibrate();
-        var ppm = gasSensor.read();
-        var calibrationData = {temperature: a.temp, humidity: a.rh, r0: r0, ppm: ppm };
-        console.log(calibrationData);
-        mqtt.publish("sensor/calibration/data/" + config.DEVICE_ID, JSON.stringify(calibrationData));
-      });
-      }, 1000 * 1);
-  });
+  sender_id = setInterval(function() {
+    dht.read(function (a) {
+      var r0 = gasSensor.calibrate();
+      var ppm = gasSensor.read();
+      var uptime = Math.round(new Date() - startTime);
+      var calibrationData = {temperature: a.temp, humidity: a.rh, r0: r0, ppm: ppm, uptime: uptime };
+      console.log(calibrationData);
+      mqtt.publish("sensor/calibration/data/" + config.DEVICE_ID, JSON.stringify(calibrationData));
+    });
+    }, 1000 * 1);
 }
