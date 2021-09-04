@@ -84,7 +84,7 @@ def calibration_request_callback(ch, method, properties, body, args):
                      body=response)
 
 
-def rabbit_callback(ch, method, properties, body, connection, table_name, body_dict_keys, body_dict_parsers):
+def rabbit_callback(ch, method, properties, body, connection, table_name, body_dict_keys, body_dict_parsers={}):
     print(f"Received {body}")
     timestamp = properties.headers['timestamp_in_ms']
     body_dict = json.loads(body)
