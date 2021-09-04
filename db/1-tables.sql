@@ -14,6 +14,7 @@ CREATE TABLE sensor_calibration_data (
     humidity numeric NOT NULL,
     r0 numeric NOT NULL,
     ppm numeric NOT NULL,
+    uptime interval NOT NULL,
     received_at timestamp NOT NULL
 );
 
