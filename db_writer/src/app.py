@@ -18,8 +18,8 @@ def buildCalibrationModel(connection, device_id):
         
         read_calibration_data_command = "SELECT temperature as t, humidity as h, AVG(r0) as r0 " \
         "FROM sensor_calibration_data " \
-        "WHERE device_id = %s " \
-        "GROUP BY device_id, t, h "
+        "WHERE device_id = %s AND is_outlier = false " \
+        "GROUP BY t, h "
         cur.execute(read_calibration_data_command, (device_id,))
         calibration_data = cur.fetchall()
         calibration_data = np.array(calibration_data, dtype=float)
