@@ -11,3 +11,7 @@ function start(device, messages) {
         messages.appendChild(li);
     });
 }
+
+window.onload = function() {
+    start("iskra", document.getElementById("messages"));
+};
