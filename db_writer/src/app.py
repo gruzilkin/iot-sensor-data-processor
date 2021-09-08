@@ -18,7 +18,7 @@ def buildCalibrationModel(connection, device_id):
         
         read_calibration_data_command = "SELECT temperature as t, humidity as h, AVG(r0) as r0 " \
         "FROM sensor_calibration_data " \
-        "WHERE device_id = %s AND is_outlier = false " \
+        "WHERE device_id = %s AND is_outlier = false AND is_invalid = false " \
         "GROUP BY t, h "
         cur.execute(read_calibration_data_command, (device_id,))
         calibration_data = cur.fetchall()

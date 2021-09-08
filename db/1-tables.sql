@@ -16,6 +16,7 @@ CREATE TABLE sensor_calibration_data (
     ppm numeric NOT NULL,
     uptime interval NOT NULL,
     received_at timestamp NOT NULL,
+    is_invalid boolean DEFAULT false,
     is_outlier boolean DEFAULT false
 );
 
