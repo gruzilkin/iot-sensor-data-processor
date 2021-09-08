@@ -21,7 +21,12 @@
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "ASPNETCORE_URLS":"http://localhost:80/"
+                "ASPNETCORE_URLS":"http://localhost:80/",
+                "RABBITMQ_HOST":"malina",
+                "DB_NAME":"postgres",
+                "DB_USER":"postgres",
+                "DB_PASSWORD":"postgres",
+                "DB_HOST":"malina"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
