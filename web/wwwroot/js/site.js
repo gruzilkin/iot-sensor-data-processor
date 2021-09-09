@@ -71,6 +71,9 @@ var option = {
     },
     xAxis: {
         type: 'time',
+        min: function (value) {
+            return value.max - 5 * 60 * 1000;
+        },
         splitLine: {
             show: false
         }
