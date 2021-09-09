@@ -38,6 +38,7 @@ namespace web.Controllers
                 using WebSocket webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
 
                 var recentData = db.SensorData.OrderByDescending(e => e.ReceivedAt).Take(100).ToList();
+                recentData.Reverse();
                 foreach(var row in recentData) 
                 {
                     var packet = SensorDataPacket.fromDb(row);
