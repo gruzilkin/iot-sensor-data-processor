@@ -133,6 +133,9 @@ var ppmOption = {
         lineStyle: {
             color: '#FF0000'
         }
+    },
+    yAxis: {
+        min: 300
     }
 };
 
