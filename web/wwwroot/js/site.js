@@ -4,13 +4,10 @@ function openWebSocket(device, onmessage) {
     webSocket.onmessage = onmessage;
 }
 
-function start(device, messages) {
+function start(device) {
     openWebSocket(device, function(e) {
-        var li = document.createElement("li");
-        li.appendChild(document.createTextNode(e.data));
-        messages.appendChild(li);
-
         var message = JSON.parse(e.data)
+        console.log(message)
 
         if (message.Temperature) {
             var newTemperaturePoint = {
@@ -140,7 +137,7 @@ var ppmOption = {
 };
 
 window.onload = function() {
-    start("iskra", document.getElementById("messages"));
+    start("iskra");
 
     temperatureChart = echarts.init(document.getElementById('temperatureChart'));
     temperatureChart.setOption(baseOption);
