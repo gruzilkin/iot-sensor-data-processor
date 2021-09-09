@@ -18,6 +18,12 @@ function start(device, messages) {
                 value: [message.ReceivedAt, message.Temperature]
             }
             temperature.push(newTemperaturePoint)
+
+            temperatureChart.setOption({
+                series: {
+                    data: temperature
+                }
+            });
         }
 
         if (message.Humidity) {
@@ -26,6 +32,12 @@ function start(device, messages) {
                 value: [message.ReceivedAt, message.Humidity]
             }
             humidity.push(newHumidityPoint)
+
+            humidityChart.setOption({
+                series: {
+                    data: humidity
+                }
+            });
         }
 
         if (message.Ppm) {
@@ -34,32 +46,24 @@ function start(device, messages) {
                 value: [message.ReceivedAt, message.Ppm]
             }
             ppm.push(newPpmPoint)
-        }
 
-        myChart.setOption({
-            series: [{
-                data: temperature
-            },
-            {
-                data: humidity
-            },
-            {
-                data: ppm
-            }]
-        });
+            ppmChart.setOption({
+                series: {
+                    data: ppm
+                }
+            });
+        }
     });
 }
 
-var myChart;
+var temperatureChart;
+var humidityChart;
+var ppmChart;
 var temperature = [];
 var humidity = [];
 var ppm = [];
 
-
-var option = {
-    title: {
-        text: 'Sensor data'
-    },
+var baseOption = {
     tooltip: {
         trigger: 'axis',
         formatter: function (params) {
@@ -84,34 +88,67 @@ var option = {
         splitLine: {
             show: false
         }
+    }
+};
+
+var temperatureOption = {
+    title: {
+        text: 'Temperature'
     },
-    series: [{
+    series: {
         name: 'temperature',
         type: 'line',
         showSymbol: false,
         hoverAnimation: false,
-        data: temperature
+        data: temperature,
+        lineStyle: {
+            color: '#00FF00'
+        }
+    }
+};
+
+var humidityOption = {
+    title: {
+        text: 'Humidity'
     },
-    {
+    series: {
         name: 'humidity',
         type: 'line',
         showSymbol: false,
         hoverAnimation: false,
-        data: humidity
+        data: humidity,
+        lineStyle: {
+            color: '#0000FF'
+        }
+    }
+};
+
+var ppmOption = {
+    title: {
+        text: 'Ppm'
     },
-    {
+    series: {
         name: 'ppm',
         type: 'line',
         showSymbol: false,
         hoverAnimation: false,
-        data: ppm
-    }]
+        data: ppm,
+        lineStyle: {
+            color: '#FF0000'
+        }
+    }
 };
 
 window.onload = function() {
     start("iskra", document.getElementById("messages"));
 
-    var chartDom = document.getElementById('chart');
-    myChart = echarts.init(chartDom);
-    option && myChart.setOption(option);
+    temperatureChart = echarts.init(document.getElementById('temperatureChart'));
+    temperatureChart.setOption(baseOption);
+    temperatureChart.setOption(temperatureOption);
+    humidityChart = echarts.init(document.getElementById('humidityChart'));
+    humidityChart.setOption(baseOption);
+    humidityChart.setOption(humidityOption);
+    ppmChart = echarts.init(document.getElementById('ppmChart'));
+    ppmChart.setOption(baseOption);
+    ppmChart.setOption(ppmOption);
 };
