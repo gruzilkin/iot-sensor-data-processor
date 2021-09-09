@@ -42,8 +42,13 @@ services:
       - "80:80"
     environment:
       - RABBITMQ_HOST=queue
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
     depends_on:
       - queue
+      - db
 
 volumes:
   pg_data:
