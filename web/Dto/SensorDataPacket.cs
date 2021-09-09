@@ -38,14 +38,15 @@ namespace web.Dto
 
         public static SensorDataPacket fromRabbit(BasicDeliverEventArgs ea) {
             var body = ea.Body.ToArray();
-            var parsedBody = JsonSerializer.Deserialize<Dictionary<String, String>>(body);
+            var parsedBody = JsonSerializer.Deserialize<Dictionary<String, Object>>(body);
             var packet = new SensorDataPacket();
-            packet.Temperature = Decimal.Parse(parsedBody["Temperature"]);
-            packet.Humidity = Decimal.Parse(parsedBody["Humidity"]);
-            if (parsedBody.ContainsKey("Ppm")) {
-                packet.Ppm = Decimal.Parse(parsedBody["Ppm"]);
+            packet.Temperature = decimal.Parse(parsedBody["temperature"].ToString());
+            packet.Humidity = decimal.Parse(parsedBody["humidity"].ToString());
+            if (parsedBody.ContainsKey("ppm")) {
+                packet.Ppm = decimal.Parse(parsedBody["ppm"].ToString());
             }
-            packet.ReceivedAt = DateTime.Parse(ea.BasicProperties.Headers["timestamp_in_ms"].ToString());
+            
+            packet.ReceivedAt = DateTimeOffset.FromUnixTimeMilliseconds((long)ea.BasicProperties.Headers["timestamp_in_ms"]).DateTime;
 
             return packet;
         }
