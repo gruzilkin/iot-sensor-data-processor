@@ -1,11 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using web.Dto;
 
 namespace web.Services
 {
@@ -24,12 +24,12 @@ namespace web.Services
             this.factory.DispatchConsumersAsync = true;
         }
 
-        public ChannelReader<byte[]> SubscribeAndWrap(String device, CancellationToken ct)
+        public ChannelReader<SensorDataPacket> SubscribeAndWrap(String device, CancellationToken ct)
         {
             IConnection conn = factory.CreateConnection();
             IModel channel = conn.CreateModel();
 
-            var pipe = Channel.CreateUnbounded<byte[]>();
+            var pipe = Channel.CreateUnbounded<SensorDataPacket>();
 
             String readerQueue = $"sensor.live.data.{device}.web";
             channel.QueueDeclare(readerQueue, false, false, true, null);
@@ -38,8 +38,8 @@ namespace web.Services
             var consumer = new AsyncEventingBasicConsumer(channel);
             consumer.Received += async(ch, ea) =>
                             {
-                                var body = ea.Body.ToArray();
-                                await pipe.Writer.WriteAsync(body);
+                                var packet = SensorDataPacket.fromRabbit(ea);
+                                await pipe.Writer.WriteAsync(packet);
                             };
             String consumerTag = channel.BasicConsume(readerQueue, true, consumer);
 
