@@ -74,17 +74,11 @@ var baseOption = {
         type: 'time',
         min: function (value) {
             return value.max - 5 * 60 * 1000;
-        },
-        splitLine: {
-            show: false
         }
     },
     yAxis: {
         type: 'value',
-        boundaryGap: [0, '100%'],
-        splitLine: {
-            show: false
-        }
+        scale: true
     }
 };
 
@@ -133,9 +127,6 @@ var ppmOption = {
         lineStyle: {
             color: '#FF0000'
         }
-    },
-    yAxis: {
-        min: 300
     }
 };
 
