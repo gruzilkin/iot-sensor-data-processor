@@ -19,9 +19,7 @@ def main():
             if scd.data_available:
                 data = {"ppm":scd.CO2, "temperature":scd.temperature, "humidity":scd.relative_humidity}
                 channel = connection.channel()
-                channel.basic_publish('amq.topic',
-                      f"sensor/live/data/{device_id}",
-                      json.dumps(data))
+                channel.basic_publish(exchange='amq.topic', routing_key=f"sensor.live.data.{device_id}", body=json.dumps(data))
 
             time.sleep(0.5)
 
