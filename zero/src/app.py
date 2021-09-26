@@ -7,7 +7,9 @@ import adafruit_scd30
 
 def main():
     host = os.environ['RABBITMQ_HOST']
+    print(f"RabbitMQ at {host}")
     device_id = os.environ['DEVICE_ID']
+    print(f"Device ID is {host}")
 
     i2c = busio.I2C(board.SCL, board.SDA, frequency=50000)
     scd = adafruit_scd30.SCD30(i2c)
