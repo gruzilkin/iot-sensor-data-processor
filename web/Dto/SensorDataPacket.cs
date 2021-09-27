@@ -39,6 +39,16 @@ namespace web.Dto
             return round(packet);
         }
 
+        public static SensorDataPacket fromRaw(decimal temperature, decimal humidity, decimal ppm, DateTime receivedAt) {
+            var packet = new SensorDataPacket();
+            packet.Temperature = temperature;
+            packet.Humidity = humidity;
+            packet.Ppm = ppm;
+            packet.ReceivedAt = receivedAt;
+
+            return round(packet);
+        }
+
         public static SensorDataPacket fromRabbit(BasicDeliverEventArgs ea) {
             var body = ea.Body.ToArray();
             var parsedBody = JsonSerializer.Deserialize<Dictionary<String, Object>>(body);

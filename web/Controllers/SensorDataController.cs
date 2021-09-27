@@ -5,6 +5,7 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using web.Db;
 using web.Dto;
@@ -37,11 +38,17 @@ namespace web.Controllers
                 CancellationToken ct = HttpContext.RequestAborted;
                 using WebSocket webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
 
-                var recentData = db.SensorData.Where(e => e.DeviceId == device).OrderByDescending(e => e.ReceivedAt).Take(100).ToList();
-                recentData.Reverse();
+                var recentData = db.SensorData.FromSqlInterpolated(@$"
+                    SELECT AVG(temperature) as temperature, AVG(humidity) as humidity, AVG(ppm) as ppm, date_trunc('minute', received_at) as received_at
+                    FROM sensor_data
+                    WHERE received_at > now() - interval '1 hour' AND device_id = {device}
+                    GROUP BY device_id, date_trunc('minute', received_at)
+                    ORDER BY received_at")
+                .Select(e => new {Humidity = e.Humidity, Temperature = e.Temperature, Ppm = e.Ppm, ReceivedAt = e.ReceivedAt}).ToList();
+
                 foreach(var row in recentData) 
                 {
-                    var packet = SensorDataPacket.fromDb(row);
+                    var packet = SensorDataPacket.fromRaw(row.Temperature, row.Humidity, row.Ppm, row.ReceivedAt);
                     await webSocket.SendAsync(packet.toBytes(), WebSocketMessageType.Text, true, ct);
                 }
 
