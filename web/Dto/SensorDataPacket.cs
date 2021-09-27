@@ -10,7 +10,7 @@ namespace web.Dto
     public class SensorDataPacket {
         public decimal Temperature {get; private set;}
         public decimal Humidity {get; private set;}
-        private decimal Ppm;
+        public decimal Ppm {get; private set;}
         public DateTime ReceivedAt {get; private set;}
 
         protected  SensorDataPacket() { }
