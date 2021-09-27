@@ -41,7 +41,7 @@ namespace web.Controllers
                 var recentData = db.SensorData.FromSqlInterpolated(@$"
                     SELECT AVG(temperature) as temperature, AVG(humidity) as humidity, AVG(ppm) as ppm, date_trunc('minute', received_at) as received_at
                     FROM sensor_data
-                    WHERE received_at > now() - interval '1 hour' AND device_id = {device}
+                    WHERE received_at > now() - interval '1 day' AND device_id = {device}
                     GROUP BY device_id, date_trunc('minute', received_at)
                     ORDER BY received_at")
                 .Select(e => new {Humidity = e.Humidity, Temperature = e.Temperature, Ppm = e.Ppm, ReceivedAt = e.ReceivedAt}).ToList();
