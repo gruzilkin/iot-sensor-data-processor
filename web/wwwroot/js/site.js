@@ -73,7 +73,7 @@ var baseOption = {
     xAxis: {
         type: 'time',
         min: function (value) {
-            return value.max - 5 * 60 * 1000;
+            return Math.max(value.min, value.max - 24 * 60 * 60 * 1000);
         }
     },
     yAxis: {
