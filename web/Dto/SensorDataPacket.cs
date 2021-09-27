@@ -10,15 +10,18 @@ namespace web.Dto
     public class SensorDataPacket {
         public decimal Temperature {get; private set;}
         public decimal Humidity {get; private set;}
-        
-        private decimal? ppm;
-        public decimal? Ppm {
-            get { return ppm; }
-            private set { ppm = value.HasValue ? Math.Round(value.Value): value;}
-        }
+        private decimal Ppm;
         public DateTime ReceivedAt {get; private set;}
 
         protected  SensorDataPacket() { }
+
+        private static SensorDataPacket round(SensorDataPacket packet)
+        {
+            packet.Temperature = decimal.Round(packet.Temperature, 1);
+            packet.Humidity = decimal.Round(packet.Humidity, 1);
+            packet.Ppm = decimal.Round(packet.Ppm);
+            return packet;
+        }
 
         public ArraySegment<byte> toBytes() {
             var dto = JsonSerializer.Serialize(this);
@@ -33,7 +36,7 @@ namespace web.Dto
             packet.Ppm = data.Ppm;
             packet.ReceivedAt = data.ReceivedAt;
 
-            return packet;
+            return round(packet);
         }
 
         public static SensorDataPacket fromRabbit(BasicDeliverEventArgs ea) {
@@ -42,13 +45,11 @@ namespace web.Dto
             var packet = new SensorDataPacket();
             packet.Temperature = decimal.Parse(parsedBody["temperature"].ToString());
             packet.Humidity = decimal.Parse(parsedBody["humidity"].ToString());
-            if (parsedBody.ContainsKey("ppm")) {
-                packet.Ppm = decimal.Parse(parsedBody["ppm"].ToString());
-            }
+            packet.Ppm = decimal.Parse(parsedBody["ppm"].ToString());
             
             packet.ReceivedAt = DateTimeOffset.FromUnixTimeMilliseconds((long)ea.BasicProperties.Headers["timestamp_in_ms"]).DateTime;
 
-            return packet;
+            return round(packet);
         }
     }
 }

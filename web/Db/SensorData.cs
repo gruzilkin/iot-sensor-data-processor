@@ -9,7 +9,7 @@ namespace web.Db
         public string DeviceId { get; set; }
         public decimal Temperature { get; set; }
         public decimal Humidity { get; set; }
-        public decimal? Ppm { get; set; }
+        public decimal Ppm { get; set; }
         public DateTime ReceivedAt { get; set; }
     }
 }
