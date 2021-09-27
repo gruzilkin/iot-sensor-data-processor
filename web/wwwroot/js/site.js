@@ -131,7 +131,7 @@ var ppmOption = {
 };
 
 window.onload = function() {
-    start("iskra");
+    start("zero");
 
     temperatureChart = echarts.init(document.getElementById('temperatureChart'));
     temperatureChart.setOption(baseOption);

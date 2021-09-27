@@ -1,10 +1,13 @@
 import pika, json, os
 
+from retry import retry
+
 import time
 import board
 import busio
 import adafruit_scd30
 
+@retry(pika.exceptions.AMQPConnectionError, delay=10, tries=3)
 def main():
     host = os.environ['RABBITMQ_HOST']
     print(f"RabbitMQ at {host}")
@@ -19,7 +22,7 @@ def main():
             if scd.data_available:
                 data = {"ppm":scd.CO2, "temperature":scd.temperature, "humidity":scd.relative_humidity}
                 channel = connection.channel()
-                channel.basic_publish(exchange='amq.topic', routing_key=f"sensor.live.data.{device_id}", body=json.dumps(data))
+                channel.basic_publish(exchange='amq.topic', routing_key=f"sensor.data.{device_id}", body=json.dumps(data))
 
             time.sleep(0.5)
 

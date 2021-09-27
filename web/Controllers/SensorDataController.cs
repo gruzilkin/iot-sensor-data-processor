@@ -37,7 +37,7 @@ namespace web.Controllers
                 CancellationToken ct = HttpContext.RequestAborted;
                 using WebSocket webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
 
-                var recentData = db.SensorData.OrderByDescending(e => e.ReceivedAt).Take(100).ToList();
+                var recentData = db.SensorData.Where(e => e.DeviceId == device).OrderByDescending(e => e.ReceivedAt).Take(100).ToList();
                 recentData.Reverse();
                 foreach(var row in recentData) 
                 {
