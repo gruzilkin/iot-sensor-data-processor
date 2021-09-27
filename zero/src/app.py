@@ -1,10 +1,13 @@
 import pika, json, os
 
+from retry import retry
+
 import time
 import board
 import busio
 import adafruit_scd30
 
+@retry(pika.exceptions.AMQPConnectionError, delay=10, tries=3)
 def main():
     host = os.environ['RABBITMQ_HOST']
     print(f"RabbitMQ at {host}")
