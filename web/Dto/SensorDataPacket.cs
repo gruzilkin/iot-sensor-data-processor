@@ -17,8 +17,8 @@ namespace web.Dto
 
         private static SensorDataPacket round(SensorDataPacket packet)
         {
-            packet.Temperature = decimal.Round(packet.Temperature, 1);
-            packet.Humidity = decimal.Round(packet.Humidity, 1);
+            packet.Temperature = decimal.Round(packet.Temperature, 2);
+            packet.Humidity = decimal.Round(packet.Humidity, 2);
             packet.Ppm = decimal.Round(packet.Ppm);
             return packet;
         }
