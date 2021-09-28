@@ -18,12 +18,12 @@ def main():
     scd = adafruit_scd30.SCD30(i2c)
 
     with pika.BlockingConnection(pika.ConnectionParameters(host=host)) as connection:
-        while True:
-            if scd.data_available:
-                data = {"ppm":scd.CO2, "temperature":scd.temperature, "humidity":scd.relative_humidity}
-                channel = connection.channel()
-                channel.basic_publish(exchange='amq.topic', routing_key=f"sensor.data.{device_id}", body=json.dumps(data))
+        with connection.channel() as channel:
+            while True:
+                if scd.data_available:
+                    data = {"ppm":scd.CO2, "temperature":scd.temperature, "humidity":scd.relative_humidity}
+                    channel.basic_publish(exchange='amq.topic', routing_key=f"sensor.data.{device_id}", body=json.dumps(data))
 
-            time.sleep(0.5)
+                time.sleep(0.5)
 
 main()
