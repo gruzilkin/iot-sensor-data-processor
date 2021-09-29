@@ -39,7 +39,7 @@ namespace web.Controllers
                 using WebSocket webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
 
                 var recentData = db.SensorData.FromSqlInterpolated(@$"
-                    SELECT AVG(temperature) as temperature, AVG(humidity) as humidity, AVG(ppm) as ppm, date_trunc('minute', received_at) as received_at
+                    SELECT MAX(temperature) as temperature, MAX(humidity) as humidity, MAX(ppm) as ppm, date_trunc('minute', received_at) as received_at
                     FROM sensor_data
                     WHERE received_at > now() - interval '1 day' AND device_id = {device}
                     GROUP BY device_id, date_trunc('minute', received_at)
