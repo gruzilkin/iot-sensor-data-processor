@@ -57,7 +57,7 @@ namespace web.Dto
             packet.Humidity = decimal.Parse(parsedBody["humidity"].ToString());
             packet.Ppm = decimal.Parse(parsedBody["ppm"].ToString());
             
-            packet.ReceivedAt = DateTimeOffset.FromUnixTimeMilliseconds((long)ea.BasicProperties.Headers["timestamp_in_ms"]).DateTime;
+            packet.ReceivedAt = DateTimeOffset.FromUnixTimeMilliseconds((long)ea.BasicProperties.Headers["timestamp_in_ms"]).UtcDateTime;
 
             return round(packet);
         }

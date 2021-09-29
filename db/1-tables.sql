@@ -4,5 +4,5 @@ CREATE TABLE sensor_data (
     temperature numeric NOT NULL,
     humidity numeric NOT NULL,
     ppm numeric NOT NULL,
-    received_at timestamp NOT NULL
+    received_at timestamp with time zone NOT NULL
 );

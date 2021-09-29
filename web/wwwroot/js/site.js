@@ -15,12 +15,6 @@ function start(device) {
                 value: [message.ReceivedAt, message.Temperature]
             }
             temperature.push(newTemperaturePoint)
-
-            temperatureChart.setOption({
-                series: {
-                    data: temperature
-                }
-            });
         }
 
         if (message.Humidity) {
@@ -29,12 +23,6 @@ function start(device) {
                 value: [message.ReceivedAt, message.Humidity]
             }
             humidity.push(newHumidityPoint)
-
-            humidityChart.setOption({
-                series: {
-                    data: humidity
-                }
-            });
         }
 
         if (message.Ppm) {
@@ -43,103 +31,127 @@ function start(device) {
                 value: [message.ReceivedAt, message.Ppm]
             }
             ppm.push(newPpmPoint)
-
-            ppmChart.setOption({
-                series: {
-                    data: ppm
-                }
-            });
         }
+
+        if (updateId) {
+            clearTimeout(updateId)
+        }
+        updateId = setTimeout(function() {
+            chart.setOption({
+                series: [
+                    {
+                        data: temperature
+                    },
+                    {
+                        data: humidity
+                    },
+                    {
+                        data: ppm
+                    }
+                ]
+            })
+        }, 0)
+        
     });
 }
 
-var temperatureChart;
-var humidityChart;
-var ppmChart;
+var chart;
 var temperature = [];
 var humidity = [];
 var ppm = [];
 
-var baseOption = {
+var updateId;
+
+var option = {
+    legend: {
+        data: ['Temperature', 'Humidity', 'Ppm']
+      },
     tooltip: {
         trigger: 'axis',
         formatter: function (params) {
             return params.map(p => p.value).map(v => v[1]).join(' / ')
         },
         axisPointer: {
-            animation: false
+            type: 'cross'
         }
     },
     xAxis: {
-        type: 'time',
-        min: function (value) {
-            return Math.max(value.min, value.max - 24 * 60 * 60 * 1000);
-        }
+        type: 'time'
     },
-    yAxis: {
-        type: 'value',
-        scale: true
-    }
-};
-
-var temperatureOption = {
-    title: {
-        text: 'Temperature'
-    },
-    series: {
-        name: 'temperature',
-        type: 'line',
-        showSymbol: false,
-        hoverAnimation: false,
-        data: temperature,
-        lineStyle: {
-            color: '#00FF00'
+    yAxis: [
+        {
+            type: 'value',
+            name: 'Temperature',
+            scale: true,
+            position: 'left'
+        },
+        {
+            type: 'value',
+            name: 'Humidity',
+            scale: true,
+            position: 'left',
+            offset: 80,
+        },
+        {
+            type: 'value',
+            name: 'Ppm',
+            scale: true,
+            position: 'right'
         }
-    }
-};
-
-var humidityOption = {
-    title: {
-        text: 'Humidity'
-    },
-    series: {
-        name: 'humidity',
-        type: 'line',
-        showSymbol: false,
-        hoverAnimation: false,
-        data: humidity,
-        lineStyle: {
-            color: '#0000FF'
+    ],
+    dataZoom: [
+        {
+            type: 'slider'
+        },
+        {
+            type: 'inside'
         }
-    }
-};
-
-var ppmOption = {
-    title: {
-        text: 'Ppm'
-    },
-    series: {
-        name: 'ppm',
-        type: 'line',
-        showSymbol: false,
-        hoverAnimation: false,
-        data: ppm,
-        lineStyle: {
-            color: '#FF0000'
+    ],
+    title: [
+        {
+            text: 'Sensor data'
         }
-    }
+    ],
+    series: [
+        {
+            name: 'Temperature',
+            type: 'line',
+            showSymbol: false,
+            hoverAnimation: false,
+            data: temperature,
+            yAxisIndex: 0,
+            lineStyle: {
+                color: '#00FF00'
+            }
+        },
+        {
+            name: 'Humidity',
+            type: 'line',
+            showSymbol: false,
+            hoverAnimation: false,
+            data: humidity,
+            yAxisIndex: 1,
+            lineStyle: {
+                color: '#0000FF'
+            }
+        },
+        {
+            name: 'Ppm',
+            type: 'line',
+            showSymbol: false,
+            hoverAnimation: false,
+            data: ppm,
+            yAxisIndex: 2,
+            lineStyle: {
+                color: '#FF0000'
+            }
+        }
+    ]
 };
 
 window.onload = function() {
     start("zero");
 
-    temperatureChart = echarts.init(document.getElementById('temperatureChart'));
-    temperatureChart.setOption(baseOption);
-    temperatureChart.setOption(temperatureOption);
-    humidityChart = echarts.init(document.getElementById('humidityChart'));
-    humidityChart.setOption(baseOption);
-    humidityChart.setOption(humidityOption);
-    ppmChart = echarts.init(document.getElementById('ppmChart'));
-    ppmChart.setOption(baseOption);
-    ppmChart.setOption(ppmOption);
+    chart = echarts.init(document.getElementById('chart'));
+    chart.setOption(option);
 };
