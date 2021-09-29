@@ -90,7 +90,7 @@ var option = {
             name: 'Humidity',
             scale: true,
             position: 'left',
-            offset: 80,
+            offset: 60,
         },
         {
             type: 'value',
