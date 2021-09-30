@@ -12,5 +12,5 @@
 web/bin/
 web/obj/
 
-rabbitmq.config
+rabbitmq.conf
 .env
