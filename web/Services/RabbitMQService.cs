@@ -21,6 +21,8 @@ namespace web.Services
 
             this.factory = new ConnectionFactory();
             this.factory.HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST");
+            this.factory.UserName = Environment.GetEnvironmentVariable("RABBITMQ_USER");
+            this.factory.Password = Environment.GetEnvironmentVariable("RABBITMQ_PASS");
             this.factory.DispatchConsumersAsync = true;
         }
 

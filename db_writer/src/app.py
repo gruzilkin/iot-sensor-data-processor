@@ -28,9 +28,15 @@ def create_connection():
 
 @retry(pika.exceptions.AMQPConnectionError, delay=10, tries=3)
 def main():
+    connectionArgs = dict()
+    user = os.environ['RABBITMQ_USER']
+    password = os.environ['RABBITMQ_PASS']
+    if user and password:
+        connectionArgs['credentials'] = pika.PlainCredentials(user, password)
+
     host = os.environ['RABBITMQ_HOST']
     print(f"Pika connecting to {host}")
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=host))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, **connectionArgs))
     print(f"Pika connected to {host}")
 
     with connection.channel() as channel:
