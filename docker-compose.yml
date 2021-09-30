@@ -8,14 +8,14 @@ services:
       - 1883:1883
       - 5672:5672
     volumes:
-      - ./rabbitmq/rabbitmq.conf.default:/etc/rabbitmq/rabbitmq.conf
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
 
   db:
     build: ./db
     ports:
       - "5432:5432"
     env_file:
-      - .env.default
+      - .env
     volumes:
       - pg_data:/var/lib/postgresql/data
 
@@ -24,7 +24,7 @@ services:
     ports:
       - "5678:5678"
     env_file:
-      - .env.default
+      - .env
     environment:
       - RABBITMQ_HOST=queue
       - PYTHONUNBUFFERED=1
@@ -42,7 +42,7 @@ services:
     ports:
       - "80:80"
     env_file:
-      - .env.default
+      - .env
     environment:
       - RABBITMQ_HOST=queue
       - DB_HOST=db
