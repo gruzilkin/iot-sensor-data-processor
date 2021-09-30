@@ -14,10 +14,16 @@ def main():
     device_id = os.environ['DEVICE_ID']
     print(f"Device ID is {device_id}")
 
+    connectionArgs = dict()
+    user = os.environ['RABBITMQ_USER']
+    password = os.environ['RABBITMQ_PASS']
+    if user and password:
+        connectionArgs['credentials'] = pika.PlainCredentials(user, password)
+
     i2c = busio.I2C(board.SCL, board.SDA, frequency=50000)
     scd = adafruit_scd30.SCD30(i2c)
 
-    with pika.BlockingConnection(pika.ConnectionParameters(host=host)) as connection:
+    with pika.BlockingConnection(pika.ConnectionParameters(host=host, **connectionArgs)) as connection:
         with connection.channel() as channel:
             while True:
                 if scd.data_available:

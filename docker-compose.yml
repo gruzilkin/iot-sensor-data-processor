@@ -7,13 +7,15 @@ services:
       - 15672:15672
       - 1883:1883
       - 5672:5672
+    volumes:
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
 
   db:
     build: ./db
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_PASSWORD: postgres
+    env_file:
+      - .env
     volumes:
       - pg_data:/var/lib/postgresql/data
 
@@ -21,12 +23,11 @@ services:
     build: ./db_writer
     ports:
       - "5678:5678"
+    env_file:
+      - .env
     environment:
       - RABBITMQ_HOST=queue
       - PYTHONUNBUFFERED=1
-      - DB_NAME=postgres
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
       - DB_HOST=db
     depends_on:
       - queue
@@ -40,11 +41,10 @@ services:
     build: ./web
     ports:
       - "80:80"
+    env_file:
+      - .env
     environment:
       - RABBITMQ_HOST=queue
-      - DB_NAME=postgres
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
       - DB_HOST=db
     depends_on:
       - queue
