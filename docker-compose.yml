@@ -8,7 +8,7 @@ services:
       - 1883:1883
       - 5672:5672
     volumes:
-      - ./rabbitmq/rabbitmq.config.default:/etc/rabbitmq/rabbitmq.config
+      - ./rabbitmq/rabbitmq.conf.default:/etc/rabbitmq/rabbitmq.conf
 
   db:
     build: ./db
