@@ -33,7 +33,7 @@ async def read_sgp40(queue):
     while True:
         if temperature and humidity:
             voc_index = sgp.measure_index(temperature=temperature, relative_humidity=humidity)
-            data = {"vocIndex":voc_index}
+            data = {"voc":voc_index}
             await queue.put(("sgp40", data))
         await asyncio.sleep(1)
 
