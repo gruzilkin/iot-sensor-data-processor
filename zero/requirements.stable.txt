@@ -1,3 +1,4 @@
 RPi.GPIO
 adafruit-blinka
 adafruit-circuitpython-scd30
+adafruit-circuitpython-sgp40
