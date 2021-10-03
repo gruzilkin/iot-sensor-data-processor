@@ -49,7 +49,7 @@ def main():
             scd30_callback = partial(rabbit_callback, connection=conn, table='sensor_data_scd30', body_dict_keys=['temperature', 'humidity', 'ppm'])
             sgp40_callback = partial(rabbit_callback, connection=conn, table='sensor_data_sgp40', body_dict_keys=['voc'])
             channel.basic_consume(queue='sensor.scd30', on_message_callback=scd30_callback, auto_ack=True)
-            channel.basic_consume(queue='sensor.sgp40', on_message_callback=scd30_callback, auto_ack=True)
+            channel.basic_consume(queue='sensor.sgp40', on_message_callback=sgp40_callback, auto_ack=True)
             channel.start_consuming()
     
 main()
