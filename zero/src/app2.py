@@ -23,16 +23,18 @@ async def sender(queue):
         async with channel:
             while True:
                 name, data = await queue.get()
-                await channel.default_exchange.publish(
+                topic = await channel.get_exchange("amq.topic")
+                await topic.publish(
                     aio_pika.Message(body=json.dumps(data).encode()),
                     routing_key=f"sensor.{name}.{device_id}")
                 print(data)
 
 async def read_sgp40(queue):
     while True:
-        voc_index = sgp.measure_index(temperature=temperature, relative_humidity=humidity)
-        data = {"vocIndex":voc_index}
-        await queue.put(("sgp40", data))
+        if temperature and humidity:
+            voc_index = sgp.measure_index(temperature=temperature, relative_humidity=humidity)
+            data = {"vocIndex":voc_index}
+            await queue.put(("sgp40", data))
         await asyncio.sleep(1)
 
 async def read_scd30(queue):
