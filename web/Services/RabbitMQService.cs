@@ -33,9 +33,9 @@ namespace web.Services
 
             var pipe = Channel.CreateUnbounded<SensorDataPacket>();
 
-            String readerQueue = $"sensor.data.{device}.web";
+            String readerQueue = $"web.{device}";
             channel.QueueDeclare(readerQueue, false, false, true, null);
-            channel.QueueBind(readerQueue, "amq.topic", $"sensor.data.{device}", null);
+            channel.QueueBind(readerQueue, "amq.topic", $"sensor.*.{device}", null);
 
             var consumer = new AsyncEventingBasicConsumer(channel);
             consumer.Received += async(ch, ea) =>
