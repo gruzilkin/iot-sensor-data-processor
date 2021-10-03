@@ -75,6 +75,7 @@ var voc = [];
 var updateId;
 
 var option = {
+    color: ['green', 'blue', 'red', 'yellow'],
     legend: {
         data: ['Temperature', 'Humidity', 'Ppm', 'Voc']
       },
@@ -138,10 +139,7 @@ var option = {
             showSymbol: false,
             hoverAnimation: false,
             data: temperature,
-            yAxisIndex: 0,
-            lineStyle: {
-                color: '#00FF00'
-            }
+            yAxisIndex: 0
         },
         {
             name: 'Humidity',
@@ -149,10 +147,7 @@ var option = {
             showSymbol: false,
             hoverAnimation: false,
             data: humidity,
-            yAxisIndex: 1,
-            lineStyle: {
-                color: '#0000FF'
-            }
+            yAxisIndex: 1
         },
         {
             name: 'Ppm',
@@ -160,10 +155,7 @@ var option = {
             showSymbol: false,
             hoverAnimation: false,
             data: ppm,
-            yAxisIndex: 2,
-            lineStyle: {
-                color: '#FF0000'
-            }
+            yAxisIndex: 2
         },
         {
             name: 'Voc',
@@ -171,10 +163,7 @@ var option = {
             showSymbol: false,
             hoverAnimation: false,
             data: voc,
-            yAxisIndex: 3,
-            lineStyle: {
-                color: '#FFFFFF'
-            }
+            yAxisIndex: 3
         }
     ]
 };
