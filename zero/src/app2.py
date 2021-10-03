@@ -49,11 +49,13 @@ async def read_scd30(queue):
         await asyncio.sleep(2.1)
 
 async def main():
-    queue = asyncio.Queue()
-    await asyncio.gather(
-        read_sgp40(queue),
-        read_scd30(queue),
-        sender(queue)
-    )
+    try:
+        queue = asyncio.Queue()
+        tasks = [read_sgp40(queue), read_scd30(queue), sender(queue)]
+        await asyncio.gather(*tasks)
+    except Exception:
+        for task in tasks:
+            task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
 
 asyncio.run(main())
