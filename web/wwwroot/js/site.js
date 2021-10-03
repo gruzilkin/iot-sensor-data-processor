@@ -94,13 +94,11 @@ var option = {
     yAxis: [
         {
             type: 'value',
-            name: 'Temperature',
             scale: true,
             position: 'left'
         },
         {
             type: 'value',
-            name: 'Humidity',
             scale: true,
             position: 'left',
             offset: 30,
