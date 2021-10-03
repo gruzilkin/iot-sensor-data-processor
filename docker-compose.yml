@@ -5,7 +5,6 @@ services:
     build: ./rabbitmq
     ports:
       - 15672:15672
-      - 1883:1883
       - 5672:5672
     volumes:
       - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
