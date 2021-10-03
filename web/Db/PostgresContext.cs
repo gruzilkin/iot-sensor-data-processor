@@ -15,7 +15,9 @@ namespace web.Db
         {
         }
 
-        public virtual DbSet<SensorSCD30> SensorData { get; set; }
+        public virtual DbSet<SensorSCD30> SensorSCD30 { get; set; }
+
+        public virtual DbSet<SensorSGP40> SensorSGP40 { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

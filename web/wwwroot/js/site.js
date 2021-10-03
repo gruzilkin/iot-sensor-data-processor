@@ -33,6 +33,14 @@ function start(device) {
             ppm.push(newPpmPoint)
         }
 
+        if (message.Voc) {
+            var newVocPoint = {
+                name: message.ReceivedAt,
+                value: [message.ReceivedAt, message.Voc]
+            }
+            voc.push(newVocPoint)
+        }
+
         if (updateId) {
             clearTimeout(updateId)
         }
@@ -47,6 +55,9 @@ function start(device) {
                     },
                     {
                         data: ppm
+                    },
+                    {
+                        data: voc
                     }
                 ]
             })
@@ -59,12 +70,13 @@ var chart;
 var temperature = [];
 var humidity = [];
 var ppm = [];
+var voc = [];
 
 var updateId;
 
 var option = {
     legend: {
-        data: ['Temperature', 'Humidity', 'Ppm']
+        data: ['Temperature', 'Humidity', 'Ppm', 'Voc']
       },
     tooltip: {
         trigger: 'axis',
@@ -90,13 +102,20 @@ var option = {
             name: 'Humidity',
             scale: true,
             position: 'left',
-            offset: 60,
+            offset: 30,
         },
         {
             type: 'value',
             name: 'Ppm',
             scale: true,
             position: 'right'
+        },
+        {
+            type: 'value',
+            name: 'Voc',
+            scale: true,
+            position: 'left',
+            offset: 60,
         }
     ],
     dataZoom: [
@@ -144,6 +163,17 @@ var option = {
             yAxisIndex: 2,
             lineStyle: {
                 color: '#FF0000'
+            }
+        },
+        {
+            name: 'Voc',
+            type: 'line',
+            showSymbol: false,
+            hoverAnimation: false,
+            data: voc,
+            yAxisIndex: 3,
+            lineStyle: {
+                color: '#FFFFFF'
             }
         }
     ]
