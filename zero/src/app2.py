@@ -55,8 +55,11 @@ async def main():
         tasks = [asyncio.create_task(coro) for coro in coros]
         await asyncio.gather(*tasks)
     except Exception:
+        print("shutting down")
         for task in tasks:
             task.cancel()
+        print("cancelling tasks")
         await asyncio.gather(*tasks, return_exceptions=True)
+        print("tasks cancelled")
 
 asyncio.run(main())
