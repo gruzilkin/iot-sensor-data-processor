@@ -15,6 +15,8 @@ function start(device) {
                 value: [message.ReceivedAt, message.Temperature]
             }
             temperature.push(newTemperaturePoint)
+
+            document.getElementById("temperature").innerText = `${message.Temperature} C` 
         }
 
         if (message.Humidity) {
@@ -23,6 +25,8 @@ function start(device) {
                 value: [message.ReceivedAt, message.Humidity]
             }
             humidity.push(newHumidityPoint)
+
+            document.getElementById("humidity").innerText = `${message.Humidity} %`
         }
 
         if (message.Ppm) {
@@ -31,6 +35,18 @@ function start(device) {
                 value: [message.ReceivedAt, message.Ppm]
             }
             ppm.push(newPpmPoint)
+
+            document.getElementById("ppm").innerText = `${message.Ppm} ppm`
+        }
+
+        if (message.Voc) {
+            var newVocPoint = {
+                name: message.ReceivedAt,
+                value: [message.ReceivedAt, message.Voc]
+            }
+            voc.push(newVocPoint)
+
+            document.getElementById("voc").innerText = message.Voc
         }
 
         if (updateId) {
@@ -47,6 +63,9 @@ function start(device) {
                     },
                     {
                         data: ppm
+                    },
+                    {
+                        data: voc
                     }
                 ]
             })
@@ -59,12 +78,14 @@ var chart;
 var temperature = [];
 var humidity = [];
 var ppm = [];
+var voc = [];
 
 var updateId;
 
 var option = {
+    color: ['green', 'lightblue', 'red', 'yellow'],
     legend: {
-        data: ['Temperature', 'Humidity', 'Ppm']
+        data: ['Temperature', 'Humidity', 'Ppm', 'Voc']
       },
     tooltip: {
         trigger: 'axis',
@@ -81,22 +102,27 @@ var option = {
     yAxis: [
         {
             type: 'value',
-            name: 'Temperature',
             scale: true,
             position: 'left'
         },
         {
             type: 'value',
-            name: 'Humidity',
             scale: true,
             position: 'left',
-            offset: 60,
+            offset: 30,
         },
         {
             type: 'value',
             name: 'Ppm',
             scale: true,
             position: 'right'
+        },
+        {
+            type: 'value',
+            name: 'Voc',
+            scale: true,
+            position: 'left',
+            offset: 60,
         }
     ],
     dataZoom: [
@@ -119,10 +145,7 @@ var option = {
             showSymbol: false,
             hoverAnimation: false,
             data: temperature,
-            yAxisIndex: 0,
-            lineStyle: {
-                color: '#00FF00'
-            }
+            yAxisIndex: 0
         },
         {
             name: 'Humidity',
@@ -130,10 +153,7 @@ var option = {
             showSymbol: false,
             hoverAnimation: false,
             data: humidity,
-            yAxisIndex: 1,
-            lineStyle: {
-                color: '#0000FF'
-            }
+            yAxisIndex: 1
         },
         {
             name: 'Ppm',
@@ -141,10 +161,15 @@ var option = {
             showSymbol: false,
             hoverAnimation: false,
             data: ppm,
-            yAxisIndex: 2,
-            lineStyle: {
-                color: '#FF0000'
-            }
+            yAxisIndex: 2
+        },
+        {
+            name: 'Voc',
+            type: 'line',
+            showSymbol: false,
+            hoverAnimation: false,
+            data: voc,
+            yAxisIndex: 3
         }
     ]
 };

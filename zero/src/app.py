@@ -1,35 +1,62 @@
-import pika, json, os
+import os, json, asyncio
+import aio_pika
+import board, busio, adafruit_scd30, adafruit_sgp40
 
-from retry import retry
+i2c = busio.I2C(board.SCL, board.SDA, frequency=50000)
+scd = adafruit_scd30.SCD30(i2c)
+sgp = adafruit_sgp40.SGP40(i2c)
 
-import time
-import board
-import busio
-import adafruit_scd30
+temperature, humidity = None, None
 
-@retry(pika.exceptions.AMQPConnectionError, delay=10, tries=3)
-def main():
+async def sender(queue):
     host = os.environ['RABBITMQ_HOST']
     print(f"RabbitMQ at {host}")
     device_id = os.environ['DEVICE_ID']
     print(f"Device ID is {device_id}")
 
-    connectionArgs = dict()
     user = os.environ['RABBITMQ_USER']
     password = os.environ['RABBITMQ_PASS']
-    if user and password:
-        connectionArgs['credentials'] = pika.PlainCredentials(user, password)
 
-    i2c = busio.I2C(board.SCL, board.SDA, frequency=50000)
-    scd = adafruit_scd30.SCD30(i2c)
-
-    with pika.BlockingConnection(pika.ConnectionParameters(host=host, **connectionArgs)) as connection:
-        with connection.channel() as channel:
+    connection =  await aio_pika.connect(host=host, login=user, password=password)
+    async with connection:
+        channel = await connection.channel()
+        async with channel:
+            topic = await channel.get_exchange("amq.topic")
             while True:
-                if scd.data_available:
-                    data = {"ppm":scd.CO2, "temperature":scd.temperature, "humidity":scd.relative_humidity}
-                    channel.basic_publish(exchange='amq.topic', routing_key=f"sensor.data.{device_id}", body=json.dumps(data))
+                name, data = await queue.get()
+                await topic.publish(
+                    aio_pika.Message(body=json.dumps(data).encode()),
+                    routing_key=f"sensor.{name}.{device_id}")
+                print(data)
 
-                time.sleep(0.5)
+async def read_sgp40(queue):
+    while True:
+        if temperature and humidity:
+            voc_index = sgp.measure_index(temperature=temperature, relative_humidity=humidity)
+            if voc_index != 0:
+                data = {"voc":voc_index}
+                await queue.put(("sgp40", data))
+        await asyncio.sleep(1)
 
-main()
+async def read_scd30(queue):
+    while True:
+        if scd.data_available:
+            global temperature, humidity
+            temperature = scd.temperature
+            humidity = scd.relative_humidity
+            data = {"ppm":scd.CO2, "temperature":scd.temperature, "humidity":scd.relative_humidity}
+            await queue.put(("scd30", data))
+        await asyncio.sleep(2.1)
+
+async def main():
+    try:
+        queue = asyncio.Queue()
+        coros = [read_sgp40(queue), read_scd30(queue), sender(queue)]
+        tasks = [asyncio.create_task(coro) for coro in coros]
+        await asyncio.gather(*tasks)
+    finally:
+        for task in tasks:
+            task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
+
+asyncio.run(main())

@@ -15,7 +15,9 @@ namespace web.Db
         {
         }
 
-        public virtual DbSet<SensorData> SensorData { get; set; }
+        public virtual DbSet<SensorSCD30> SensorSCD30 { get; set; }
+
+        public virtual DbSet<SensorSGP40> SensorSGP40 { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -27,12 +29,12 @@ namespace web.Db
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<SensorData>(entity =>
+            modelBuilder.Entity<SensorSCD30>(entity =>
             {
-                entity.ToTable("sensor_data");
+                entity.ToTable("sensor_data_scd30");
 
                 entity.HasIndex(e => new { e.DeviceId, e.ReceivedAt })
-                    .HasName("sensor_data_idx_1");
+                    .HasName("sensor_data_scd30_idx_1");
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
@@ -54,6 +56,27 @@ namespace web.Db
                 entity.Property(e => e.Temperature)
                     .HasColumnName("temperature")
                     .HasColumnType("numeric");
+            });
+
+            modelBuilder.Entity<SensorSGP40>(entity =>
+            {
+                entity.ToTable("sensor_data_sgp40");
+
+                entity.HasIndex(e => new { e.DeviceId, e.ReceivedAt })
+                    .HasName("sensor_data_sgp40_idx_1");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.DeviceId)
+                    .IsRequired()
+                    .HasColumnName("device_id")
+                    .HasMaxLength(32);
+
+                entity.Property(e => e.Voc)
+                    .HasColumnName("voc")
+                    .HasColumnType("numeric");
+
+                entity.Property(e => e.ReceivedAt).HasColumnName("received_at");
             });
 
             OnModelCreatingPartial(modelBuilder);

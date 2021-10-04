@@ -1,7 +1,0 @@
-version: '3.8'
-
-services:
-  db_writer:
-    build:
-      context: ./db_writer
-      dockerfile: Dockerfile.pi
