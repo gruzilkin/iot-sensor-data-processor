@@ -51,7 +51,8 @@ async def read_scd30(queue):
 async def main():
     try:
         queue = asyncio.Queue()
-        tasks = [read_sgp40(queue), read_scd30(queue), sender(queue)]
+        coros = [read_sgp40(queue), read_scd30(queue), sender(queue)]
+        tasks = [asyncio.create_task(coro) for coro in coros]
         await asyncio.gather(*tasks)
     except Exception:
         for task in tasks:
