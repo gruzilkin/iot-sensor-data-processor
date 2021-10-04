@@ -21,9 +21,9 @@ async def sender(queue):
     async with connection:
         channel = await connection.channel()
         async with channel:
+            topic = await channel.get_exchange("amq.topic")
             while True:
                 name, data = await queue.get()
-                topic = await channel.get_exchange("amq.topic")
                 await topic.publish(
                     aio_pika.Message(body=json.dumps(data).encode()),
                     routing_key=f"sensor.{name}.{device_id}")
