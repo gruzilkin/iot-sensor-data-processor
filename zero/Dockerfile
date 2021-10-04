@@ -19,4 +19,4 @@ COPY ./src/ .
 
 EXPOSE 5678
 
-CMD python3 app2.py
+CMD python3 app.py
