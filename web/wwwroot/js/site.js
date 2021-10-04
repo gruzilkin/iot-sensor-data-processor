@@ -15,6 +15,8 @@ function start(device) {
                 value: [message.ReceivedAt, message.Temperature]
             }
             temperature.push(newTemperaturePoint)
+
+            document.getElementById("temperature").innerText = `${message.Temperature} C` 
         }
 
         if (message.Humidity) {
@@ -23,6 +25,8 @@ function start(device) {
                 value: [message.ReceivedAt, message.Humidity]
             }
             humidity.push(newHumidityPoint)
+
+            document.getElementById("humidity").innerText = `${message.Humidity} %`
         }
 
         if (message.Ppm) {
@@ -31,6 +35,8 @@ function start(device) {
                 value: [message.ReceivedAt, message.Ppm]
             }
             ppm.push(newPpmPoint)
+
+            document.getElementById("ppm").innerText = `${message.Ppm} ppm`
         }
 
         if (message.Voc) {
@@ -39,6 +45,8 @@ function start(device) {
                 value: [message.ReceivedAt, message.Voc]
             }
             voc.push(newVocPoint)
+
+            document.getElementById("voc").innerText = message.Voc
         }
 
         if (updateId) {
@@ -75,7 +83,7 @@ var voc = [];
 var updateId;
 
 var option = {
-    color: ['green', 'blue', 'red', 'yellow'],
+    color: ['green', 'lightblue', 'red', 'yellow'],
     legend: {
         data: ['Temperature', 'Humidity', 'Ppm', 'Voc']
       },

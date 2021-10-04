@@ -35,7 +35,7 @@ namespace web.Dto
         }
 
         public ArraySegment<byte> toBytes() {
-            var dto = JsonSerializer.Serialize(this);
+            var dto = JsonSerializer.Serialize(this, new JsonSerializerOptions { IgnoreNullValues = true });
             var body = Encoding.UTF8.GetBytes(dto);
             return new ArraySegment<byte>(body, 0, body.Length);
         }
