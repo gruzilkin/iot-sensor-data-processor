@@ -54,7 +54,9 @@ async def main():
         coros = [read_sgp40(queue), read_scd30(queue), sender(queue)]
         tasks = [asyncio.create_task(coro) for coro in coros]
         await asyncio.gather(*tasks)
-    except Exception:
+    except KeyboardInterrupt:
+        pass
+    finally:
         print("shutting down")
         for task in tasks:
             task.cancel()
