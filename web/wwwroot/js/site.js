@@ -83,7 +83,7 @@ var voc = [];
 var updateId;
 
 var option = {
-    color: ['green', 'lightblue', 'red', 'yellow'],
+    color: ['green', 'lightblue', 'red', 'orange'],
     legend: {
         data: ['Temperature', 'Humidity', 'Ppm', 'Voc']
       },
