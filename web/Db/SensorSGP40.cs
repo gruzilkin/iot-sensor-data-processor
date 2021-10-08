@@ -9,5 +9,6 @@ namespace web.Db
         public string DeviceId { get; set; }
         public decimal Voc { get; set; }
         public DateTime ReceivedAt { get; set; }
+        public bool Render { get; set; }
     }
 }

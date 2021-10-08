@@ -56,6 +56,10 @@ namespace web.Db
                 entity.Property(e => e.Temperature)
                     .HasColumnName("temperature")
                     .HasColumnType("numeric");
+
+                entity.Property(e => e.Render)
+                    .HasColumnName("render")
+                    .HasColumnType("boolean");
             });
 
             modelBuilder.Entity<SensorSGP40>(entity =>
@@ -77,6 +81,10 @@ namespace web.Db
                     .HasColumnType("numeric");
 
                 entity.Property(e => e.ReceivedAt).HasColumnName("received_at");
+
+                entity.Property(e => e.Render)
+                    .HasColumnName("render")
+                    .HasColumnType("boolean");
             });
 
             OnModelCreatingPartial(modelBuilder);

@@ -11,5 +11,6 @@ namespace web.Db
         public decimal Humidity { get; set; }
         public decimal Ppm { get; set; }
         public DateTime ReceivedAt { get; set; }
+        public bool Render { get; set; }
     }
 }
