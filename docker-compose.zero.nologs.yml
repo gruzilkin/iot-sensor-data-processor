@@ -1,0 +1,4 @@
+services:
+  zero:
+    logging:
+      driver: none
