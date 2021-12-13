@@ -8,6 +8,11 @@ services:
       - 5672:5672
     volumes:
       - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   db:
     build: ./db
@@ -17,6 +22,11 @@ services:
       - .env
     volumes:
       - pg_data:/var/lib/postgresql/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   db_writer:
     build: ./db_writer
@@ -35,6 +45,11 @@ services:
       mode: global
       restart_policy:
         condition: on-failure
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   web:
     build: ./web
@@ -48,6 +63,11 @@ services:
     depends_on:
       - queue
       - db
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
 volumes:
   pg_data:

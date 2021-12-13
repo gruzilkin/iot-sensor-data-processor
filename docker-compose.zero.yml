@@ -17,3 +17,8 @@ services:
       mode: global
       restart_policy:
         condition: on-failure
+    logging:
+      driver: "json-file"
+        options:
+          max-size: "10m"
+          max-file: "5"
