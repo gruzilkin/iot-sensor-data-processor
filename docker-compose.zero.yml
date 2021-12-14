@@ -13,10 +13,7 @@ services:
       - DEVICE_ID=zero
     devices:
       - "/dev/i2c-1:/dev/i2c-1"
-    deploy:
-      mode: global
-      restart_policy:
-        condition: on-failure
+    restart: always
     logging:
       driver: "json-file"
       options:
