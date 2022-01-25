@@ -22,8 +22,8 @@ services:
     env_file:
       - .env.default
       - .env
-    volumes:
-      - pg_data:/var/lib/postgresql/data
+    tmpfs:
+      - /var/lib/postgresql/data
     restart: always
     logging:
       driver: "json-file"
@@ -71,6 +71,3 @@ services:
       options:
         max-size: "10m"
         max-file: "5"
-
-volumes:
-  pg_data:
