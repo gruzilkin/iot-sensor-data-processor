@@ -11,6 +11,10 @@ services:
     logging:
       driver: none
 
+  db_optimizer:
+    logging:
+      driver: none
+
   web:
     logging:
       driver: none
