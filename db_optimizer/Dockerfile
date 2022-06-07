@@ -4,8 +4,10 @@ FROM python:3.7-buster
 
 WORKDIR /app
 
+RUN apt update && apt install -y libatlas-base-dev && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+RUN pip install -r requirements.txt --no-cache-dir --index-url=https://www.piwheels.org/simple
 
 COPY wait-for-it.sh .
 RUN chmod a+x wait-for-it.sh
