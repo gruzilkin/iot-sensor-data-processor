@@ -31,6 +31,8 @@ namespace web.Dto
             if (packet.Voc.HasValue) {
                 packet.Voc = decimal.Round(packet.Voc.Value);
             }
+
+            packet.ReceivedAt =DateTime.SpecifyKind(packet.ReceivedAt, DateTimeKind.Utc);
             return packet;
         }
 
