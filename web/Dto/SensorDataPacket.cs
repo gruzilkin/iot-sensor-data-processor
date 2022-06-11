@@ -40,19 +40,33 @@ namespace web.Dto
             return new ArraySegment<byte>(body, 0, body.Length);
         }
 
-        public static SensorDataPacket fromDb(SensorSCD30 data) {
+        public static SensorDataPacket forTemperature(SensorReading data) {
             var packet = new SensorDataPacket();
-            packet.Temperature = data.Temperature;
-            packet.Humidity = data.Humidity;
-            packet.Ppm = data.Ppm;
+            packet.Temperature = data.Value;
             packet.ReceivedAt = data.ReceivedAt;
 
             return round(packet);
         }
 
-        public static SensorDataPacket fromDb(SensorSGP40 data) {
+        public static SensorDataPacket forHumidity(SensorReading data) {
             var packet = new SensorDataPacket();
-            packet.Voc = data.Voc;
+            packet.Humidity = data.Value;
+            packet.ReceivedAt = data.ReceivedAt;
+
+            return round(packet);
+        }
+
+        public static SensorDataPacket forPpm(SensorReading data) {
+            var packet = new SensorDataPacket();
+            packet.Ppm = data.Value;
+            packet.ReceivedAt = data.ReceivedAt;
+
+            return round(packet);
+        }
+
+        public static SensorDataPacket forVoc(SensorReading data) {
+            var packet = new SensorDataPacket();
+            packet.Voc = data.Value;
             packet.ReceivedAt = data.ReceivedAt;
 
             return round(packet);

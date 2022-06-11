@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
@@ -30,6 +31,32 @@ namespace web.Controllers
             this.db = db;
         }
 
+        private List<SensorReading> readDb(String sensor, String signal, String device, double percentile) {
+            var sql = @$"WITH top_weights AS (
+					SELECT id, {signal} as signal, received_at, PERCENT_RANK() OVER (ORDER BY weight DESC) percentile
+					FROM sensor_data_{sensor}
+					JOIN weights_{sensor}_{signal} USING (id)
+					WHERE device_id = {{0}}
+				)
+				(SELECT {signal} as value, received_at
+				FROM sensor_data_{sensor}
+				WHERE device_id = {{0}}
+				ORDER BY id ASC LIMIT 1)
+				UNION
+				(SELECT signal as value, received_at
+				FROM top_weights
+				WHERE percentile < {{1}}
+                ORDER BY received_at DESC)
+				UNION
+				(SELECT {signal} as value, received_at
+				FROM sensor_data_{sensor}
+				WHERE device_id = {{0}}
+				ORDER BY id DESC LIMIT 1)";
+            var readings = db.SensorReading.FromSqlRaw(sql, device, percentile)
+            .ToList();
+            return readings;
+        }
+
         [HttpGet("{device}")]
         public async Task Get(string device)
         {
@@ -38,32 +65,29 @@ namespace web.Controllers
                 CancellationToken ct = HttpContext.RequestAborted;
                 using WebSocket webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
 
-                var scd30History = db.SensorSCD30.FromSqlInterpolated(@$"
-                    SELECT MAX(temperature) as temperature, MAX(humidity) as humidity, MAX(ppm) as ppm, date_trunc('minute', received_at) as received_at
-                    FROM sensor_data_scd30
-                    WHERE received_at > now() - interval '1 day' AND device_id = {device}
-                    GROUP BY device_id, date_trunc('minute', received_at)
-                    ORDER BY received_at")
-                .Select(e => new {Humidity = e.Humidity, Temperature = e.Temperature, Ppm = e.Ppm, ReceivedAt = e.ReceivedAt}).ToList();
-
-                foreach(var row in scd30History) 
+                var config = new Dictionary<string, List<string>>()
                 {
-                    var packet = SensorDataPacket.fromRaw(row.Temperature, row.Humidity, row.Ppm, row.ReceivedAt);
-                    await webSocket.SendAsync(packet.toBytes(), WebSocketMessageType.Text, true, ct);
-                }
+                    { "scd30", new List<string>() {"temperature", "humidity", "ppm"} },
+                    {"sgp40",new List<string>() {"voc"}}
+                };
 
-                var sgp40History = db.SensorSGP40.FromSqlInterpolated(@$"
-                    SELECT MAX(voc) as voc, date_trunc('minute', received_at) as received_at
-                    FROM sensor_data_sgp40
-                    WHERE received_at > now() - interval '1 day' AND device_id = {device}
-                    GROUP BY device_id, date_trunc('minute', received_at)
-                    ORDER BY received_at")
-                .Select(e => new {Voc = e.Voc, ReceivedAt = e.ReceivedAt}).ToList();
-
-                foreach(var row in sgp40History) 
+                var setters = new Dictionary<String, Func<SensorReading, SensorDataPacket>>()
                 {
-                    var packet = SensorDataPacket.fromRaw(row.Voc, row.ReceivedAt);
-                    await webSocket.SendAsync(packet.toBytes(), WebSocketMessageType.Text, true, ct);
+                    {"temperature", (SensorReading p) => SensorDataPacket.forTemperature(p)},
+                    {"humidity", (SensorReading p) => SensorDataPacket.forHumidity(p)},
+                    {"ppm", (SensorReading p) => SensorDataPacket.forPpm(p)},
+                    {"voc", (SensorReading p) => SensorDataPacket.forVoc(p)}
+                };
+
+                foreach( var (sensor, signals) in config) {
+                    foreach(var signal in signals) {
+                        var readings = readDb(sensor, signal, device, 0.1);
+                        foreach(var reading in readings) 
+                        {
+                            var packet =setters[signal](reading);
+                            await webSocket.SendAsync(packet.toBytes(), WebSocketMessageType.Text, true, ct);
+                        }
+                    }
                 }
 
                 var reader = rabbit.SubscribeAndWrap(device, ct);
