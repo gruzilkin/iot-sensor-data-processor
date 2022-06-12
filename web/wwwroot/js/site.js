@@ -92,12 +92,9 @@ var option = {
       },
     tooltip: {
         trigger: 'axis',
-        formatter: function (params) {
-            return params.map(p => p.value).map(v => v[1]).join(' / ')
-        },
         axisPointer: {
             type: 'cross'
-        }
+       }
     },
     xAxis: {
         type: 'time'

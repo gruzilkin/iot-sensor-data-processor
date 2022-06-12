@@ -23,19 +23,19 @@
 
 <script type="application/javascript">
     temperature = [
-        @Html.Raw(string.Join(",", Model.Temperature.Select(p => $"{{ name: '{p.ReceivedAt.ToString("o")}', value: ['{p.ReceivedAt.ToString("o")}', {p.Temperature}] }}")))
+        @Html.Raw(string.Join(",", Model.Temperature.Select(p => $"['{p.ReceivedAt.ToString("o")}', {p.Temperature}]")))
     ];
 
     humidity = [
-        @Html.Raw(string.Join(",", Model.Humidity.Select(p => $"{{ name: '{p.ReceivedAt.ToString("o")}', value: ['{p.ReceivedAt.ToString("o")}', {p.Humidity}] }}")))
+        @Html.Raw(string.Join(",", Model.Humidity.Select(p => $"['{p.ReceivedAt.ToString("o")}', {p.Humidity}]")))
     ];
 
     ppm = [
-        @Html.Raw(string.Join(",", Model.Ppm.Select(p => $"{{ name: '{p.ReceivedAt.ToString("o")}', value: ['{p.ReceivedAt.ToString("o")}', {p.Ppm}] }}")))
+        @Html.Raw(string.Join(",", Model.Ppm.Select(p => $"['{p.ReceivedAt.ToString("o")}', {p.Ppm}]")))
     ];
 
     voc = [
-        @Html.Raw(string.Join(",", Model.Voc.Select(p => $"{{ name: '{p.ReceivedAt.ToString("o")}', value: ['{p.ReceivedAt.ToString("o")}', {p.Voc}] }}")))
+        @Html.Raw(string.Join(",", Model.Voc.Select(p => $"['{p.ReceivedAt.ToString("o")}', {p.Voc}]")))
     ];
 </script>
 
