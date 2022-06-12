@@ -34,8 +34,7 @@ namespace web.Controllers
                 FROM (
                     (SELECT {signal} as value, received_at
                     FROM sensor_data_{sensor}
-                    WHERE device_id = {{0}}
-                    ORDER BY id ASC LIMIT 1)
+                    WHERE id = (SELECT MIN(id) FROM sensor_data_{sensor} WHERE device_id = {{0}}))
                     UNION
                     (SELECT signal as value, received_at
                     FROM top_weights
@@ -44,8 +43,7 @@ namespace web.Controllers
                     UNION
                     (SELECT {signal} as value, received_at
                     FROM sensor_data_{sensor}
-                    WHERE device_id = {{0}}
-                    ORDER BY id DESC LIMIT 1)
+                    WHERE device_id = {{0}} AND id > (SELECT MAX(id) FROM top_weights))
                 ) combined
                 ORDER BY received_at ASC";
 
