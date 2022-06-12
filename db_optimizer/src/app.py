@@ -116,7 +116,7 @@ def calculate_weights_for_series(series, ratio=0.1):
     start = time.time()
     weight = calculate_weights(data, ratio)
     end = time.time()
-    print("weight calculation took ", end-start)
+    print(f"weight calculation took {end-start:.2f}")
 
     return pd.Series(index=series.index, data=weight)
 
@@ -130,7 +130,9 @@ def process_weights():
             for signal in signals:
                 for device in devices:
                     df = fetch_tail(connection, sensor, signal, device)
-                    print(sensor, signal, device, len(df))
+                    
+                    print(f"{sensor}/{signal}/{device} tail length {len(df)}")
+                    
                     df.signal = df.signal.astype(float)
                     
                     mean, std = fetch_statistics(connection, sensor, signal, device)
