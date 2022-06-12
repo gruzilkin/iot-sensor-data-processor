@@ -22,13 +22,26 @@ def fetch_devices(connection, sensor):
 		return [row[0] for row in cursor.fetchall()]
 
 
-def fetch(connection, sensor, signal, device_id, include_timestamp=False):
+def fetch_tail(connection, sensor, signal, device_id, include_timestamp=False):
 	with connection.cursor() as cursor:
-		sql = f"""SELECT id, {signal} as signal {', received_at ' if include_timestamp else ''} 
-			FROM sensor_data_{sensor}
-			WHERE device_id = %s AND received_at > now() - interval '1 day'
-			ORDER BY received_at ASC"""
-		cursor.execute(sql, (device_id,))
+		sql = f"""WITH last_received_at AS (
+					SELECT MAX(received_at) as last_received_at
+					FROM sensor_data_{sensor}
+					JOIN weights_{sensor}_{signal} USING (id)
+					WHERE device_id = %s
+				), last_peak AS (
+					SELECT *
+					FROM sensor_data_{sensor}
+					JOIN weights_{sensor}_{signal} USING (id)
+					WHERE device_id = %s
+					AND received_at > (SELECT last_received_at - interval '5 minute'  FROM last_received_at)
+					ORDER BY weight DESC
+					LIMIT 1
+				)
+				SELECT id, {signal} as signal
+				FROM sensor_data_{sensor}
+				WHERE device_id = %s AND id >= COALESCE((SELECT id FROM last_peak), 0)"""
+		cursor.execute(sql, (device_id, device_id, device_id,))
 		
 		columns = ['id', 'signal']
 		if include_timestamp:
@@ -42,21 +55,24 @@ def remove_old_data(connection, sensor):
 		WHERE received_at < now() - interval '1 day'""")
 
 
-def truncate_weights(connection, sensor, signal):
+def fetch_statistics(connection, sensor, signal, device_id):
 	with connection.cursor() as cursor:
-		cursor.execute(f"""TRUNCATE weights_{sensor}_{signal}""")
+		sql = f"""SELECT avg({signal}), stddev_pop({signal}) FROM sensor_data_{sensor} WHERE device_id = %s"""
+		cursor.execute(sql, (device_id,))
+		return cursor.fetchone()
 
 
 def update_weight(connection, sensor, signal, series):
 	with connection.cursor() as cursor:
-		sql = f"""INSERT INTO weights_{sensor}_{signal} (id, weight) VALUES %s"""
+		sql = f"""INSERT INTO weights_{sensor}_{signal} (id, weight) VALUES %s
+		ON CONFLICT (id) DO UPDATE SET weight = EXCLUDED.weight
+		WHERE weights_{sensor}_{signal}.weight < EXCLUDED.weight"""
 		data = [(id, weight) for id, weight in series.items()]
 		psycopg2.extras.execute_values(cursor, sql, data)
 
 
 def calculate_weights(data, ratio = 1):
     y = data
-    y = (y - y.mean()) / y.std()
     x = np.arange(len(y))
     indeces = {0:0, len(y)-1:0}
 
@@ -101,10 +117,6 @@ def calculate_weights_for_series(series, ratio=0.1):
     weight = calculate_weights(data, ratio)
     end = time.time()
     print("weight calculation took ", end-start)
-    
-    weight = (weight - weight.min()) / weight.ptp()
-    weight[0] = 1
-    weight[-1] = 1
 
     return pd.Series(index=series.index, data=weight)
 
@@ -116,10 +128,13 @@ def process_weights():
             remove_old_data(connection, sensor)
             devices = fetch_devices(connection, sensor)
             for signal in signals:
-                truncate_weights(connection, sensor, signal)
                 for device in devices:
-                    df = fetch(connection, sensor, signal, device)
+                    df = fetch_tail(connection, sensor, signal, device)
+                    print(sensor, signal, device, len(df))
                     df.signal = df.signal.astype(float)
+                    
+                    mean, std = fetch_statistics(connection, sensor, signal, device)
+                    df.signal = (df.signal - float(mean)) / float(std)
                     
                     weights = calculate_weights_for_series(df.signal)
                     weights = weights[weights > 0]
