@@ -1,0 +1,49 @@
+@model web.Models.ChartModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="dark light">
+    <title>Sensor data</title>
+    <link rel="stylesheet" href="/css/site.css" />
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.2.0/dist/echarts.min.js" integrity="sha256-K7QvUcgMJTtzv+fWKp0Bcp+sA6JihMs7BGHDigKFu9o=" crossorigin="anonymous"></script>
+    <script src="/js/site.js" asp-append-version="true"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <div id="ppm" class="item"></div>
+        <div id="voc" class="item"></div>
+        <div id="temperature" class="item"></div>
+        <div id="humidity" class="item"></div>
+      </div>
+    <div id="chart" class="chart"></div>
+</body>
+</html>
+
+<script type="application/javascript">
+    temperature = [
+        @Html.Raw(string.Join(",", Model.Temperature.Select(p => $"['{p.ReceivedAt.ToString("o")}', {p.Temperature}]")))
+    ];
+
+    humidity = [
+        @Html.Raw(string.Join(",", Model.Humidity.Select(p => $"['{p.ReceivedAt.ToString("o")}', {p.Humidity}]")))
+    ];
+
+    ppm = [
+        @Html.Raw(string.Join(",", Model.Ppm.Select(p => $"['{p.ReceivedAt.ToString("o")}', {p.Ppm}]")))
+    ];
+
+    voc = [
+        @Html.Raw(string.Join(",", Model.Voc.Select(p => $"['{p.ReceivedAt.ToString("o")}', {p.Voc}]")))
+    ];
+</script>
+
+
+<script type="application/javascript">
+    window.addEventListener("load", function() {
+        renderChart();
+        start("@Model.Device");
+    });
+</script>
+

@@ -52,6 +52,25 @@ services:
         max-size: "10m"
         max-file: "5"
 
+  db_optimizer:
+    build: ./db_optimizer
+    env_file:
+      - .env.default
+      - .env
+    environment:
+      - RABBITMQ_HOST=queue
+      - PYTHONUNBUFFERED=1
+      - DB_HOST=db
+    depends_on:
+      - queue
+      - db
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
   web:
     build: ./web
     ports:

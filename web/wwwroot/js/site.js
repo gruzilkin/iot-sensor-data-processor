@@ -49,29 +49,34 @@ function start(device) {
             document.getElementById("voc").innerText = message.Voc
         }
 
-        if (updateId) {
-            clearTimeout(updateId)
-        }
-        updateId = setTimeout(function() {
-            chart.setOption({
-                series: [
-                    {
-                        data: temperature
-                    },
-                    {
-                        data: humidity
-                    },
-                    {
-                        data: ppm
-                    },
-                    {
-                        data: voc
-                    }
-                ]
-            })
-        }, 1)
-        
+        renderChart();        
     });
+}
+
+var updateId;
+
+function renderChart() {
+    if (updateId) {
+        clearTimeout(updateId);
+    }
+    updateId = setTimeout(function () {
+        chart.setOption({
+            series: [
+                {
+                    data: temperature
+                },
+                {
+                    data: humidity
+                },
+                {
+                    data: ppm
+                },
+                {
+                    data: voc
+                }
+            ]
+        });
+    }, 1);
 }
 
 var chart;
@@ -80,8 +85,6 @@ var humidity = [];
 var ppm = [];
 var voc = [];
 
-var updateId;
-
 var option = {
     color: ['green', 'lightblue', 'red', 'orange'],
     legend: {
@@ -89,12 +92,9 @@ var option = {
       },
     tooltip: {
         trigger: 'axis',
-        formatter: function (params) {
-            return params.map(p => p.value).map(v => v[1]).join(' / ')
-        },
         axisPointer: {
             type: 'cross'
-        }
+       }
     },
     xAxis: {
         type: 'time'
@@ -174,9 +174,7 @@ var option = {
     ]
 };
 
-window.onload = function() {
-    start("zero");
-
+window.addEventListener("load", function() {
     chart = echarts.init(document.getElementById('chart'));
     chart.setOption(option);
-};
+});
