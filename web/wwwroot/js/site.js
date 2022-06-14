@@ -83,6 +83,7 @@ var chart;
 var chartData = {temperature: [], humidity: [], ppm: [], voc: []}
 
 var option = {
+    animation: false,
     color: ['green', 'lightblue', 'red', 'orange'],
     legend: {
         data: ['Temperature', 'Humidity', 'Ppm', 'Voc']
