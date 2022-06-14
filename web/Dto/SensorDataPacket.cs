@@ -11,7 +11,6 @@ namespace web.Dto
         public decimal? Temperature {get; private set;}
         public decimal? Humidity {get; private set;}
         public decimal? Ppm {get; private set;}
-
         public decimal? Voc {get; private set;}
         public long ReceivedAt {get; private set;}
 
@@ -72,24 +71,6 @@ namespace web.Dto
             var packet = new SensorDataPacket();
             packet.Voc = data.Value;
             packet.ReceivedAt = ToUnixTimestamp(data.ReceivedAt);
-
-            return round(packet);
-        }
-
-        public static SensorDataPacket fromRaw(decimal temperature, decimal humidity, decimal ppm, DateTime receivedAt) {
-            var packet = new SensorDataPacket();
-            packet.Temperature = temperature;
-            packet.Humidity = humidity;
-            packet.Ppm = ppm;
-            packet.ReceivedAt = ToUnixTimestamp(receivedAt);;
-
-            return round(packet);
-        }
-
-        public static SensorDataPacket fromRaw(decimal voc, DateTime receivedAt) {
-            var packet = new SensorDataPacket();
-            packet.Voc = voc;
-            packet.ReceivedAt = ToUnixTimestamp(receivedAt);;
 
             return round(packet);
         }

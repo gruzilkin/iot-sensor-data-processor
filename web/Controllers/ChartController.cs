@@ -31,13 +31,13 @@ namespace web.Controllers
                     FROM sensor_data_scd30
                 ),
                 top_weights AS (
-					SELECT id, {signal} as signal, received_at, PERCENT_RANK() OVER (ORDER BY weight DESC) percentile
-					FROM sensor_data_{sensor}
-					JOIN weights_{sensor}_{signal} USING (id)
-					WHERE device_id = {{0}}
+                    SELECT id, {signal} as signal, received_at, PERCENT_RANK() OVER (ORDER BY weight DESC) percentile
+                    FROM sensor_data_{sensor}
+                    JOIN weights_{sensor}_{signal} USING (id)
+                    WHERE device_id = {{0}}
                     AND received_at > (SELECT frame.start FROM frame)
                     AND received_at < (SELECT frame.end FROM frame)
-				)
+                )
                 SELECT combined.*
                 FROM (
                     (SELECT {signal} as value, received_at
