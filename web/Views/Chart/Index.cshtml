@@ -22,28 +22,73 @@
 </html>
 
 <script type="application/javascript">
-    temperature = [
-        @Html.Raw(string.Join(",", Model.Temperature.Select(p => $"['{p.ReceivedAt.ToString("o")}', {p.Temperature}]")))
+    chartData.temperature = [
+        @Html.Raw(string.Join(",", Model.Temperature.Select(p => $"[{p.ReceivedAt}, {p.Temperature}]")))
     ];
 
-    humidity = [
-        @Html.Raw(string.Join(",", Model.Humidity.Select(p => $"['{p.ReceivedAt.ToString("o")}', {p.Humidity}]")))
+    chartData.humidity = [
+        @Html.Raw(string.Join(",", Model.Humidity.Select(p => $"[{p.ReceivedAt}, {p.Humidity}]")))
     ];
 
-    ppm = [
-        @Html.Raw(string.Join(",", Model.Ppm.Select(p => $"['{p.ReceivedAt.ToString("o")}', {p.Ppm}]")))
+    chartData.ppm = [
+        @Html.Raw(string.Join(",", Model.Ppm.Select(p => $"[{p.ReceivedAt}, {p.Ppm}]")))
     ];
 
-    voc = [
-        @Html.Raw(string.Join(",", Model.Voc.Select(p => $"['{p.ReceivedAt.ToString("o")}', {p.Voc}]")))
+    chartData.voc = [
+        @Html.Raw(string.Join(",", Model.Voc.Select(p => $"[{p.ReceivedAt}, {p.Voc}]")))
     ];
 </script>
-
 
 <script type="application/javascript">
     window.addEventListener("load", function() {
         renderChart();
         start("@Model.Device");
+
+        chart.on('datazoom', function(event) {
+        if (event.batch)
+        {
+            event = event.batch[0]
+        }
+
+        var start = event.start / 100
+        var end = event.end / 100
+
+        scheduleFetchUpdates(start, end)
+    })
     });
+
+    var fetchUpdateTaskId;
+    function scheduleFetchUpdates(start, end) {
+        if (fetchUpdateTaskId) {
+            clearTimeout(fetchUpdateTaskId);
+        }
+        fetchUpdateTaskId = setTimeout(function () {
+            fetchUpdates(start, end)
+        }, 100);
+    }
+
+    function fetchUpdates(start, end) {
+        fetch(`/Chart/Json/@Model.Device?start=${start}&end=${end}`)
+        .then(function (response) {
+            response.json().then(function(data) {
+                mergeUpdates(data)
+                console.log(data)
+            })
+        });
+    }
+
+    function mergeUpdates(updateData) {
+        var properties = ['temperature', 'humidity', 'ppm', 'voc']
+
+        for (var property of properties) {
+            var tmp = new Map()
+            chartData[property].forEach(e => tmp.set(e[0], e[1]))
+            updateData[property].forEach(e => tmp.set(e.receivedAt, e[property]))
+            chartData[property] = []
+            for(var timestamp of [...tmp.keys()].sort()) {chartData[property].push([timestamp, tmp.get(timestamp)])}
+        }
+
+        renderChart();
+    }
 </script>
 
