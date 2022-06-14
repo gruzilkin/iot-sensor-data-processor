@@ -13,7 +13,7 @@ namespace web.Dto
         public decimal? Ppm {get; private set;}
 
         public decimal? Voc {get; private set;}
-        public DateTime ReceivedAt {get; private set;}
+        public long ReceivedAt {get; private set;}
 
         protected  SensorDataPacket() { }
 
@@ -31,9 +31,12 @@ namespace web.Dto
             if (packet.Voc.HasValue) {
                 packet.Voc = decimal.Round(packet.Voc.Value);
             }
-
-            packet.ReceivedAt =DateTime.SpecifyKind(packet.ReceivedAt, DateTimeKind.Utc);
             return packet;
+        }
+
+        private static long ToUnixTimestamp(DateTime dt) 
+        {
+            return ((DateTimeOffset)dt).ToUnixTimeMilliseconds();
         }
 
         public ArraySegment<byte> toBytes() {
@@ -45,15 +48,14 @@ namespace web.Dto
         public static SensorDataPacket forTemperature(SensorReading data) {
             var packet = new SensorDataPacket();
             packet.Temperature = data.Value;
-            packet.ReceivedAt = data.ReceivedAt;
-
+            packet.ReceivedAt = ToUnixTimestamp(data.ReceivedAt);
             return round(packet);
         }
 
         public static SensorDataPacket forHumidity(SensorReading data) {
             var packet = new SensorDataPacket();
             packet.Humidity = data.Value;
-            packet.ReceivedAt = data.ReceivedAt;
+            packet.ReceivedAt = ToUnixTimestamp(data.ReceivedAt);
 
             return round(packet);
         }
@@ -61,7 +63,7 @@ namespace web.Dto
         public static SensorDataPacket forPpm(SensorReading data) {
             var packet = new SensorDataPacket();
             packet.Ppm = data.Value;
-            packet.ReceivedAt = data.ReceivedAt;
+            packet.ReceivedAt = ToUnixTimestamp(data.ReceivedAt);
 
             return round(packet);
         }
@@ -69,7 +71,7 @@ namespace web.Dto
         public static SensorDataPacket forVoc(SensorReading data) {
             var packet = new SensorDataPacket();
             packet.Voc = data.Value;
-            packet.ReceivedAt = data.ReceivedAt;
+            packet.ReceivedAt = ToUnixTimestamp(data.ReceivedAt);
 
             return round(packet);
         }
@@ -79,7 +81,7 @@ namespace web.Dto
             packet.Temperature = temperature;
             packet.Humidity = humidity;
             packet.Ppm = ppm;
-            packet.ReceivedAt = receivedAt;
+            packet.ReceivedAt = ToUnixTimestamp(receivedAt);;
 
             return round(packet);
         }
@@ -87,7 +89,7 @@ namespace web.Dto
         public static SensorDataPacket fromRaw(decimal voc, DateTime receivedAt) {
             var packet = new SensorDataPacket();
             packet.Voc = voc;
-            packet.ReceivedAt = receivedAt;
+            packet.ReceivedAt = ToUnixTimestamp(receivedAt);;
 
             return round(packet);
         }
@@ -109,7 +111,7 @@ namespace web.Dto
                 packet.Voc = decimal.Parse(parsedBody["voc"].ToString());
             }
             
-            packet.ReceivedAt = DateTimeOffset.FromUnixTimeMilliseconds((long)ea.BasicProperties.Headers["timestamp_in_ms"]).UtcDateTime;
+            packet.ReceivedAt = (long)ea.BasicProperties.Headers["timestamp_in_ms"];
 
             return round(packet);
         }

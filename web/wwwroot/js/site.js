@@ -14,7 +14,7 @@ function start(device) {
                 name: message.ReceivedAt,
                 value: [message.ReceivedAt, message.Temperature]
             }
-            temperature.push(newTemperaturePoint)
+            chartData.temperature.push(newTemperaturePoint)
 
             document.getElementById("temperature").innerText = `${message.Temperature} C` 
         }
@@ -24,7 +24,7 @@ function start(device) {
                 name: message.ReceivedAt,
                 value: [message.ReceivedAt, message.Humidity]
             }
-            humidity.push(newHumidityPoint)
+            chartData.humidity.push(newHumidityPoint)
 
             document.getElementById("humidity").innerText = `${message.Humidity} %`
         }
@@ -34,7 +34,7 @@ function start(device) {
                 name: message.ReceivedAt,
                 value: [message.ReceivedAt, message.Ppm]
             }
-            ppm.push(newPpmPoint)
+            chartData.ppm.push(newPpmPoint)
 
             document.getElementById("ppm").innerText = `${message.Ppm} ppm`
         }
@@ -44,7 +44,7 @@ function start(device) {
                 name: message.ReceivedAt,
                 value: [message.ReceivedAt, message.Voc]
             }
-            voc.push(newVocPoint)
+            chartData.voc.push(newVocPoint)
 
             document.getElementById("voc").innerText = message.Voc
         }
@@ -53,26 +53,26 @@ function start(device) {
     });
 }
 
-var updateId;
+var renderTaskId;
 
 function renderChart() {
-    if (updateId) {
-        clearTimeout(updateId);
+    if (renderTaskId) {
+        clearTimeout(renderTaskId);
     }
-    updateId = setTimeout(function () {
+    renderTaskId = setTimeout(function () {
         chart.setOption({
             series: [
                 {
-                    data: temperature
+                    data: chartData.temperature
                 },
                 {
-                    data: humidity
+                    data: chartData.humidity
                 },
                 {
-                    data: ppm
+                    data: chartData.ppm
                 },
                 {
-                    data: voc
+                    data: chartData.voc
                 }
             ]
         });
@@ -80,10 +80,7 @@ function renderChart() {
 }
 
 var chart;
-var temperature = [];
-var humidity = [];
-var ppm = [];
-var voc = [];
+var chartData = {temperature: [], humidity: [], ppm: [], voc: []}
 
 var option = {
     color: ['green', 'lightblue', 'red', 'orange'],
@@ -144,7 +141,7 @@ var option = {
             type: 'line',
             showSymbol: false,
             hoverAnimation: false,
-            data: temperature,
+            data: chartData.temperature,
             yAxisIndex: 0
         },
         {
@@ -152,7 +149,7 @@ var option = {
             type: 'line',
             showSymbol: false,
             hoverAnimation: false,
-            data: humidity,
+            data: chartData.humidity,
             yAxisIndex: 1
         },
         {
@@ -160,7 +157,7 @@ var option = {
             type: 'line',
             showSymbol: false,
             hoverAnimation: false,
-            data: ppm,
+            data: chartData.ppm,
             yAxisIndex: 2
         },
         {
@@ -168,7 +165,7 @@ var option = {
             type: 'line',
             showSymbol: false,
             hoverAnimation: false,
-            data: voc,
+            data: chartData.voc,
             yAxisIndex: 3
         }
     ]
