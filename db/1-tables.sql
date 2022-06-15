@@ -1,16 +1,16 @@
 CREATE TABLE sensor_data_scd30 (
     id SERIAL PRIMARY KEY,
     device_id varchar(32) NOT NULL,
-    temperature numeric NOT NULL,
-    humidity numeric NOT NULL,
-    ppm numeric NOT NULL,
+    temperature numeric(3, 1) NOT NULL,
+    humidity numeric(3, 1) NOT NULL,
+    ppm numeric(4) NOT NULL,
     received_at timestamp with time zone NOT NULL
 );
 
 CREATE TABLE sensor_data_sgp40 (
     id SERIAL PRIMARY KEY,
     device_id varchar(32) NOT NULL,
-    voc numeric NOT NULL,
+    voc numeric(3) NOT NULL,
     received_at timestamp with time zone NOT NULL
 );
 
