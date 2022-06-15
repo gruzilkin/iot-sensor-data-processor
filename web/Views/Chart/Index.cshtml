@@ -50,8 +50,8 @@
             event = event.batch[0]
         }
 
-        var start = event.start / 100
-        var end = event.end / 100
+        var start = parseInt(chart.getOption().dataZoom[0].startValue)
+        var end = parseInt(chart.getOption().dataZoom[0].endValue)
 
         scheduleFetchUpdates(start, end)
     })

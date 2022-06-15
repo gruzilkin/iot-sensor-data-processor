@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
@@ -21,44 +22,40 @@ namespace web.Controllers
             this.db = db;
         }
 
-        private List<SensorReading> readDb(string sensor, string signal, string device, double percentile, double start=0, double end=1)
+        private List<SensorReading> readDb(string sensor, string signal, string device, long limit, DateTime start, DateTime end)
         {
             var sql = 
                 @$"
-                WITH frame AS (
-                    SELECT MIN(received_at) + (MAX(received_at)-MIN(received_at))*{{2}} as start,
-                    MIN(received_at) + (MAX(received_at)-MIN(received_at))*{{3}} as end
-                    FROM sensor_data_scd30
-                ),
-                top_weights AS (
+                WITH top_weights AS (
                     SELECT id, {signal} as signal, received_at, PERCENT_RANK() OVER (ORDER BY weight DESC) percentile
                     FROM sensor_data_{sensor}
                     JOIN weights_{sensor}_{signal} USING (id)
                     WHERE device_id = {{0}}
-                    AND received_at > (SELECT frame.start FROM frame)
-                    AND received_at < (SELECT frame.end FROM frame)
+                    AND received_at > {{2}}
+                    AND received_at < {{3}}
                 )
                 SELECT combined.*
                 FROM (
                     (SELECT {signal} as value, received_at
                     FROM sensor_data_{sensor}
                     WHERE id = (SELECT MIN(id) FROM sensor_data_{sensor} WHERE device_id = {{0}})
-                    AND received_at > (SELECT frame.start FROM frame)
-                    AND received_at < (SELECT frame.end FROM frame) )
+                    AND received_at > {{2}}
+                    AND received_at < {{3}} )
                     UNION
                     (SELECT signal as value, received_at
                     FROM top_weights
-                    WHERE percentile < {{1}} )
+                    ORDER BY percentile
+                    LIMIT {{1}} )
                     UNION
                     (SELECT {signal} as value, received_at
                     FROM sensor_data_{sensor}
                     WHERE device_id = {{0}} AND id > (SELECT MAX(id) FROM top_weights)
-                    AND received_at > (SELECT frame.start FROM frame)
-                    AND received_at < (SELECT frame.end FROM frame) )
+                    AND received_at > {{2}}
+                    AND received_at < {{3}} )
                 ) combined
                 ORDER BY received_at ASC";
 
-            var readings = db.SensorReading.FromSqlRaw(sql, device, percentile, start, end).ToList();
+            var readings = db.SensorReading.FromSqlRaw(sql, device, limit, start, end).ToList();
             return readings;
         }
 
@@ -66,22 +63,31 @@ namespace web.Controllers
         {
             var model = new ChartModel() { Device = id };
 
-            model.Temperature = readDb("scd30", "temperature", id, 0.1).Select(r => SensorDataPacket.forTemperature(r)).ToList();
-            model.Humidity = readDb("scd30", "humidity", id, 0.1).Select(r => SensorDataPacket.forHumidity(r)).ToList();
-            model.Ppm = readDb("scd30", "ppm", id, 0.1).Select(r => SensorDataPacket.forPpm(r)).ToList();
-            model.Voc = readDb("sgp40", "voc", id, 0.1).Select(r => SensorDataPacket.forVoc(r)).ToList();
+            var startTime = DateTime.MinValue;
+            var endTime = DateTime.Now;
+            
+            var limit = int.Parse(Environment.GetEnvironmentVariable("DATA_START_LIMIT"));
+
+            model.Temperature = readDb("scd30", "temperature", id, limit, startTime, endTime).Select(r => SensorDataPacket.forTemperature(r)).ToList();
+            model.Humidity = readDb("scd30", "humidity", id, limit, startTime, endTime).Select(r => SensorDataPacket.forHumidity(r)).ToList();
+            model.Ppm = readDb("scd30", "ppm", id, limit, startTime, endTime).Select(r => SensorDataPacket.forPpm(r)).ToList();
+            model.Voc = readDb("sgp40", "voc", id, limit, startTime, endTime).Select(r => SensorDataPacket.forVoc(r)).ToList();
             
             return View(model);
         }
 
-        public JsonResult Json(string id, double start, double end)
+        public JsonResult Json(string id, long start, long end)
         {
             var model = new ChartModel() { Device = id };
-            var percentile = 0.1 / (end - start);
-            model.Temperature = readDb("scd30", "temperature", id, percentile, start, end).Select(r => SensorDataPacket.forTemperature(r)).ToList();
-            model.Humidity = readDb("scd30", "humidity", id, percentile, start, end).Select(r => SensorDataPacket.forHumidity(r)).ToList();
-            model.Ppm = readDb("scd30", "ppm", id, percentile, start, end).Select(r => SensorDataPacket.forPpm(r)).ToList();
-            model.Voc = readDb("sgp40", "voc", id, percentile, start, end).Select(r => SensorDataPacket.forVoc(r)).ToList();
+            var startTime = DateTimeOffset.FromUnixTimeMilliseconds(start).UtcDateTime;
+            var endTime = DateTimeOffset.FromUnixTimeMilliseconds(end).UtcDateTime;
+            
+            var limit = int.Parse(Environment.GetEnvironmentVariable("DATA_JSON_LIMIT"));
+            
+            model.Temperature = readDb("scd30", "temperature", id, limit, startTime, endTime).Select(r => SensorDataPacket.forTemperature(r)).ToList();
+            model.Humidity = readDb("scd30", "humidity", id, limit, startTime, endTime).Select(r => SensorDataPacket.forHumidity(r)).ToList();
+            model.Ppm = readDb("scd30", "ppm", id, limit, startTime, endTime).Select(r => SensorDataPacket.forPpm(r)).ToList();
+            model.Voc = readDb("sgp40", "voc", id, limit, startTime, endTime).Select(r => SensorDataPacket.forVoc(r)).ToList();
 
             return Json(model);
         } 

@@ -111,10 +111,10 @@ def calculate_weights(data, ratio = 1):
     return np.array([indeces[x] if x in indeces.keys() else 0 for x in x])
 
 
-def calculate_weights_for_series(series, ratio=0.1):
+def calculate_weights_for_series(series):
     data = series.to_numpy()
     start = time.time()
-    weight = calculate_weights(data, ratio)
+    weight = calculate_weights(data, ratio = 1)
     end = time.time()
     print(f"weight calculation took {end-start:.2f}")
 
