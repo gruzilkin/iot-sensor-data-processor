@@ -26,32 +26,32 @@ namespace web.Controllers
         {
             var sql = 
                 @$"
-                WITH top_weights AS (
-                    SELECT id, {signal} as signal, received_at, PERCENT_RANK() OVER (ORDER BY weight DESC) percentile
-                    FROM sensor_data_{sensor}
-                    JOIN weights_{sensor}_{signal} USING (id)
-                    WHERE device_id = {{0}}
-                    AND received_at > {{2}}
-                    AND received_at < {{3}}
-                )
                 SELECT combined.*
                 FROM (
-                    (SELECT {signal} as value, received_at
-                    FROM sensor_data_{sensor}
-                    WHERE id = (SELECT MIN(id) FROM sensor_data_{sensor} WHERE device_id = {{0}})
-                    AND received_at > {{2}}
-                    AND received_at < {{3}} )
+                    (
+                        SELECT {signal} as value, received_at
+                        FROM sensor_data_{sensor}
+                        WHERE id = ( SELECT MIN(id) FROM sensor_data_{sensor} WHERE device_id = {{0}} AND received_at > {{2}} AND received_at < {{3}} )
+                    )
                     UNION
-                    (SELECT signal as value, received_at
-                    FROM top_weights
-                    ORDER BY percentile
-                    LIMIT {{1}} )
+                    (
+                        SELECT {signal} as signal, received_at
+                        FROM sensor_data_{sensor}
+                        JOIN weights_{sensor}_{signal} USING (id)
+                        WHERE device_id = {{0}}
+                        AND received_at > {{2}}
+                        AND received_at < {{3}}
+                        ORDER BY weight DESC
+                        LIMIT {{1}}
+                    )
                     UNION
-                    (SELECT {signal} as value, received_at
-                    FROM sensor_data_{sensor}
-                    WHERE device_id = {{0}} AND id > (SELECT MAX(id) FROM top_weights)
-                    AND received_at > {{2}}
-                    AND received_at < {{3}} )
+                    (
+                        SELECT {signal} as value, received_at
+                        FROM sensor_data_{sensor}
+                        WHERE id > ( SELECT MAX(id) FROM sensor_data_{sensor} JOIN weights_{sensor}_{signal} USING (id) WHERE device_id = {{0}} )
+                        AND received_at > {{2}}
+                        AND received_at < {{3}}
+                    )
                 ) combined
                 ORDER BY received_at ASC";
 
