@@ -49,6 +49,7 @@ namespace web.Controllers
                         SELECT {signal} as value, received_at
                         FROM sensor_data_{sensor}
                         WHERE id > ( SELECT MAX(id) FROM sensor_data_{sensor} JOIN weights_{sensor}_{signal} USING (id) WHERE device_id = {{0}} )
+                        AND device_id = {{0}}
                         AND received_at > {{2}}
                         AND received_at < {{3}}
                     )
