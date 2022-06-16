@@ -25,7 +25,7 @@ namespace web.Dto
                 packet.Humidity = decimal.Round(packet.Humidity.Value, 2);
             }
             if (packet.Ppm.HasValue) {
-                packet.Ppm = decimal.Round(packet.Ppm.Value);
+                packet.Ppm = decimal.Round(packet.Ppm.Value, 2);
             }
             if (packet.Voc.HasValue) {
                 packet.Voc = decimal.Round(packet.Voc.Value);
