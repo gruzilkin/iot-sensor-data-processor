@@ -34,7 +34,7 @@ def fetch_tail(connection, sensor, signal, device_id, include_timestamp=False):
 					FROM sensor_data_{sensor}
 					JOIN weights_{sensor}_{signal} USING (id)
 					WHERE device_id = %s
-					AND received_at > (SELECT last_received_at - interval '5 minute'  FROM last_received_at)
+					AND received_at > (SELECT last_received_at - interval '1 hour'  FROM last_received_at)
 					ORDER BY weight DESC
 					LIMIT 1
 				)
