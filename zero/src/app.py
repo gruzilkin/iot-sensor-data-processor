@@ -57,23 +57,10 @@ class Worker:
             await asyncio.sleep(2.1)
 
     async def main(self):
-        try:
-            queue = asyncio.Queue()
-            coros = [self.read_sgp40(queue), self.read_scd30(queue), self.sender(queue)]
-            self.tasks = [asyncio.create_task(coro) for coro in coros]
-            await asyncio.gather(*self.tasks, return_exceptions=True)
-        except asyncio.exceptions.CancelledError:
-            pass
-        finally:
-            await self.cancel()            
-    
-    async def cancel(self):
-        try:
-            for task in self.tasks:
-                task.cancel()
-            await asyncio.gather(*self.tasks, return_exceptions=True)
-        except asyncio.exceptions.CancelledError:
-            pass
+        queue = asyncio.Queue()
+        coros = [self.read_sgp40(queue), self.read_scd30(queue), self.sender(queue)]
+        self.tasks = [asyncio.create_task(coro) for coro in coros]
+        await asyncio.gather(*self.tasks)
 
 if __name__ == '__main__':
     worker = Worker()
