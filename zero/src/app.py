@@ -48,7 +48,16 @@ async def read_scd30(queue):
             await queue.put(("scd30", data))
         await asyncio.sleep(2.1)
 
+def init_sensors():
+    print("SCD30 Temperature offset: ", scd.temperature_offset)
+    print("SCD30 Measurement interval: ", scd.measurement_interval)
+    print("SCD30 Self-calibration enabled: ", scd.self_calibration_enabled)
+    print("SCD30 Ambient Pressure: ", scd.ambient_pressure)
+    print("SCD30 Altitude: ", scd.altitude, " meters above sea level")
+
 async def main():
+    init_sensors()
+    
     try:
         queue = asyncio.Queue()
         coros = [read_sgp40(queue), read_scd30(queue), sender(queue)]

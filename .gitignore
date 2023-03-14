@@ -12,5 +12,7 @@
 web/bin/
 web/obj/
 
+**/__pycache__/
+
 rabbitmq.conf
 .env
