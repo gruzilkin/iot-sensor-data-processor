@@ -27,6 +27,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: zero
+          platforms: arm32v5
           file: ./zero/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot:latest
