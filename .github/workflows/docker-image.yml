@@ -26,8 +26,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v4
         with:
-          context: zero
-          platforms: arm32v5
-          file: ./zero/Dockerfile
+          context: db
+          file: ./db/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot:latest
