@@ -5,6 +5,7 @@ on:
     branches:
       - "main"
       - "testcontainers"
+      - "net7"
 
 jobs:
   build:
@@ -33,6 +34,6 @@ jobs:
         with:
           context: web
           platforms: linux/arm/v7
-          file: ./web/Dockerfile.armv7
+          file: ./web/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot-web:latest
