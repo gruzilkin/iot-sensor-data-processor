@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.7-slim-buster
+FROM arm32v5/python:3.7-slim-buster
 
 WORKDIR /app
 
