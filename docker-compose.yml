@@ -6,8 +6,9 @@ services:
     ports:
       - 15672:15672
       - 5672:5672
-    volumes:
-      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    env_file:
+      - .env.default
+      - .env
     restart: always
     logging:
       driver: "json-file"
