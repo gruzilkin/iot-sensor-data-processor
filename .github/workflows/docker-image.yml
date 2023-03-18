@@ -32,6 +32,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: web
+          platforms: arm64v8
           file: ./web/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot-web:latest
