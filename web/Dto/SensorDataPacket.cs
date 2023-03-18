@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using RabbitMQ.Client.Events;
 using web.Db;
 
@@ -39,7 +40,7 @@ namespace web.Dto
         }
 
         public ArraySegment<byte> toBytes() {
-            var dto = JsonSerializer.Serialize(this, new JsonSerializerOptions { IgnoreNullValues = true });
+            var dto = JsonSerializer.Serialize(this, new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
             var body = Encoding.UTF8.GetBytes(dto);
             return new ArraySegment<byte>(body, 0, body.Length);
         }
