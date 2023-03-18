@@ -29,6 +29,15 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       -
+        name: Build and push rabbitmq
+        uses: docker/build-push-action@v4
+        with:
+          context: rabbitmq
+          platforms: linux/arm/v7
+          file: ./rabbitmq/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot-rabbitmq:latest
+      -
         name: Build and push Web
         uses: docker/build-push-action@v4
         with:
@@ -41,6 +50,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: db
+          platforms: linux/arm/v7
           file: ./db/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot-db:latest
@@ -58,14 +68,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: db_writer
+          platforms: linux/arm/v7
           file: ./db_writer/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot-db-writer:latest
-      -
-        name: Build and push rabbitmq
-        uses: docker/build-push-action@v4
-        with:
-          context: rabbitmq
-          file: ./rabbitmq/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot-rabbitmq:latest
