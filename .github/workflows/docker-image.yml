@@ -29,6 +29,15 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       -
+        name: Build and push Zero
+        uses: docker/build-push-action@v4
+        with:
+          context: zero
+          platforms: linux/arm/v7
+          file: ./zero/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot-rabbitmq:latest      
+      -
         name: Build and push rabbitmq
         uses: docker/build-push-action@v4
         with:
