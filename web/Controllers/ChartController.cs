@@ -64,8 +64,8 @@ namespace web.Controllers
         {
             var model = new ChartModel() { Device = id };
 
-            var startTime = DateTime.MinValue;
-            var endTime = DateTime.Now;
+            var startTime = DateTime.MinValue.ToUniversalTime();
+            var endTime = DateTime.Now.ToUniversalTime();
             
             var limit = int.Parse(Environment.GetEnvironmentVariable("DATA_START_LIMIT"));
 
