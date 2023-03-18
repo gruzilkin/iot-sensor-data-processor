@@ -33,7 +33,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: web
-          platforms: linux/arm/v7
           file: ./web/Dockerfile.armv7
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot-web:latest
