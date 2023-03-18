@@ -33,10 +33,10 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: zero
-          platforms: linux/arm/v7
+          platforms: linux/arm/v5
           file: ./zero/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot-rabbitmq:latest      
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot-zero:latest      
       -
         name: Build and push rabbitmq
         uses: docker/build-push-action@v4
