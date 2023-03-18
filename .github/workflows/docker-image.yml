@@ -36,3 +36,35 @@ jobs:
           file: ./web/Dockerfile.armv7
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot-web:latest
+      -
+        name: Build and push Db
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./db/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot-db:latest
+      -
+        name: Build and push Db optimizer
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./db_optimizer/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot-db-optimizer:latest
+      -
+        name: Build and push Db writer
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./db_writer/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot-db-writer:latest
+      -
+        name: Build and push rabbitmq
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./rabbitmq/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot-rabbitmq:latest
