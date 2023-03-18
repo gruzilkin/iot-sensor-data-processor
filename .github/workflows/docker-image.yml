@@ -49,6 +49,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: db_optimizer
+          platforms: linux/arm32v7
           file: ./db_optimizer/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/iot-db-optimizer:latest
