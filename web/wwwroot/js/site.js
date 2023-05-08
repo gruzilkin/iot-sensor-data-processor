@@ -175,4 +175,7 @@ var option = {
 window.addEventListener("load", function() {
     chart = echarts.init(document.getElementById('chart'));
     chart.setOption(option);
+    window.onresize = function() {
+        chart.resize();
+    }
 });
